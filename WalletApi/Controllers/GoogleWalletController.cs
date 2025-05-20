@@ -33,16 +33,16 @@ namespace GoogleWalletApi.Controllers
             return Ok(await ChinaairLinesService.InsertClassAsync(boardingPass));
         }
 
-        [HttpPost("PatchClass")]
-        public async Task<IActionResult> PatchClass(string classId)
-        {
-            var result = await ChinaairLinesService.GetClassByClassIdAsync(classId);
-            var flightClass = result?.Data;
+        //[HttpPost("PatchClass")]
+        //public async Task<IActionResult> PatchClass(string classId)
+        //{
+        //    var result = await ChinaairLinesService.GetClassByClassIdAsync(classId);
+        //    var flightClass = result?.Data;
 
-            flightClass.ClassTemplateInfo = null; // ChinaairLinesService.CreateFlightCardTemplate();
+        //    flightClass.ClassTemplateInfo = null; // ChinaairLinesService.CreateFlightCardTemplate();
 
-            return Ok(await ChinaairLinesService.PatchClassAsync(flightClass));
-        }
+        //    return Ok(await ChinaairLinesService.PatchClassAsync(flightClass));
+        //}
 
         [HttpPost("PatchOjbectIdtoClassId")]
         public async Task<IActionResult> PatchOjbectIdtoClassId(string? classId, string? objectId)
@@ -63,8 +63,18 @@ namespace GoogleWalletApi.Controllers
             return Ok(await ChinaairLinesService.InsertObjectAsync(boardingPass));
         }
 
+        [HttpPost("PatchObject")]
+        public async Task<IActionResult> PatchClass(BoardingPassWalletModel boardingPass)
+        {
+            return Ok(
+                await ChinaairLinesService.PatchObjectAsync(
+                    ChinaairLinesService.BuildFlightObject(boardingPass)
+                )
+            );
+        }
+
         [HttpPost("GetJWT")]
-        public async Task<IActionResult> GetJWT(string classId, string objectId)
+        public async Task<IActionResult> GetJWT(string? classId, string? objectId)
         {
             return Ok(
                 await ChinaairLinesService.GetJwtToken(

@@ -11,6 +11,8 @@ namespace WalletLibrary.GoogleWallet.Services.Interfaces
             string flightObjectId
         );
 
+        public FlightObject BuildFlightObject(BoardingPassWalletModel boardingPassWallet);
+
         #region 操作 Class Resource
         /// <summary>
         /// 獲取特定的 FlightClass 資源物件。

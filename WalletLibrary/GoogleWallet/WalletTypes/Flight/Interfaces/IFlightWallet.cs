@@ -20,22 +20,22 @@ namespace WalletLibrary.GoogleWallet.WalletTypes.Flight.Interfaces
         /// </summary>
         IFlightObjectRepository ObjectRepository { get; }
 
-        #region
-        /// <summary>
-        /// 創建新的 FlightClass 和 FlightObject 並生成 "Add to Google Wallet" 的連結。
-        /// </summary>
-        /// <param name="flightClass">FlightClass 資源物件。</param>
-        /// <param name="flightObject">FlightObject 資源物件。</param>
-        /// <returns>返回 "Add to Google Wallet" 的連結。</returns>
-        Task<string> CreateJWTNewObjects(FlightClass flightClass, FlightObject flightObject);
+        #region JWT
 
         /// <summary>
-        /// 獲取 FlightClass 和 FlightObject 並生成 "Add to Google Wallet" 的連結。
+        /// 生成 "Add to Google Wallet" 的連結 By FlightClass ID 和 FlightObject ID。
         /// </summary>
         /// <param name="flightClassId">FlightClass ResourceId。</param>
         /// <param name="flightObjectId">FlightObject ResourceId。</param>
         /// <returns>返回 "Add to Google Wallet" 的連結。</returns>
         Task<string> GetJwtToken(string flightClassId, string flightObjectId);
+
+        /// <summary>
+        /// 生成 "Add to Google Wallet" 的連結 By FlightObject ID。
+        /// </summary>
+        /// <param name="flightObjectId">FlightObject ResourceId。</param>
+        /// <returns>返回 "Add to Google Wallet" 的連結。</returns>
+        Task<string> GetJwtToken(string flightObjectId);
         #endregion
     }
 }

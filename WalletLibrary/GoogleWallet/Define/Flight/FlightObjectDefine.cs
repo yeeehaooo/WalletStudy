@@ -27,7 +27,5 @@
             /// </summary>
             public const string INACTIVE = "INACTIVE";
         }
-
     }
-    
 }

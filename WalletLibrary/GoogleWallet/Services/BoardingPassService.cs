@@ -1,10 +1,6 @@
-﻿using System.Data;
-using System.Management;
-using System.Net;
-using System.Threading;
+﻿using System.Net;
 using Google.Apis.Walletobjects.v1.Data;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using WalletLibrary.Base.Models;
 using WalletLibrary.DTO;
 using WalletLibrary.GoogleWallet.Base.Interfaces;
@@ -12,7 +8,6 @@ using WalletLibrary.GoogleWallet.Define.Flight;
 using WalletLibrary.GoogleWallet.Services.Interfaces;
 using WalletLibrary.GoogleWallet.Settings;
 using WalletLibrary.GoogleWallet.WalletTypes.Flight.Models;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 using static WalletLibrary.GoogleWallet.Define.Flight.FlightClassDefine;
 using GoogleApiUri = Google.Apis.Walletobjects.v1.Data.Uri;
 
@@ -73,7 +68,7 @@ namespace WalletLibrary.GoogleWallet.Services
 
             // 1. Note: ReviewStatus must be 'UNDER_REVIEW' or 'DRAFT'
             // 審核狀態（預設為 "UNDER_REVIEW"，若已申請 正式版 production 可改為 "APPROVED"）
-            flightClass.ReviewStatus = ReviewStatus.UnderReview.GetDescription();
+            flightClass.ReviewStatus = ReviewStatus.UNDER_REVIEW;
 
             // 2. 背景底色模組
             flightClass.HexBackgroundColor = _settings.HexBackgroundColor;
@@ -115,9 +110,6 @@ namespace WalletLibrary.GoogleWallet.Services
             flightClass.TextModulesData = new List<TextModuleData>();
             flightClass.TextModulesData.Add(reminderInfo);
             flightClass.TextModulesData.Add(reminderInfo2);
-            //flightClass.TextModulesData.Add(
-            //    FlightWalletUtility.ToDefaultTextModule("Test1", "cs", "A")
-            //);
             // 航班相關設定
             // 7. 出發機場資訊
             flightClass.Origin = new AirportInfo();
@@ -323,6 +315,19 @@ namespace WalletLibrary.GoogleWallet.Services
                                     },
                                 },
                             },
+                            EndItem = new TemplateItem
+                            {
+                                FirstValue = new FieldSelector
+                                {
+                                    Fields = new List<FieldReference>
+                                    {
+                                        new FieldReference
+                                        {
+                                            FieldPath = "object.textModulesData['CodeShare']",
+                                        },
+                                    },
+                                },
+                            },
                         },
                     },
                 },
@@ -405,22 +410,6 @@ namespace WalletLibrary.GoogleWallet.Services
                             },
                         },
                     },
-                    //new DetailsItemInfo
-                    //{
-                    //    Item = new TemplateItem
-                    //    {
-                    //        FirstValue = new FieldSelector
-                    //        {
-                    //            Fields = new List<FieldReference>
-                    //            {
-                    //                new FieldReference
-                    //                {
-                    //                    FieldPath = "object.textModulesData['BaggageInfo']",
-                    //                },
-                    //            },
-                    //        },
-                    //    },
-                    //},
                     new DetailsItemInfo
                     {
                         Item = new TemplateItem
@@ -431,7 +420,23 @@ namespace WalletLibrary.GoogleWallet.Services
                                 {
                                     new FieldReference
                                     {
-                                        FieldPath = "object.textModulesData['Test1']",
+                                        FieldPath = "object.textModulesData['BaggageInfo']",
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    new DetailsItemInfo
+                    {
+                        Item = new TemplateItem
+                        {
+                            FirstValue = new FieldSelector
+                            {
+                                Fields = new List<FieldReference>
+                                {
+                                    new FieldReference
+                                    {
+                                        FieldPath = "object.textModulesData['CodeShare']",
                                     },
                                 },
                             },
@@ -491,7 +496,7 @@ namespace WalletLibrary.GoogleWallet.Services
         /// </summary>
         /// <param name="boardingPassWallet">登機證模型</param>
         /// <returns></returns>
-        private FlightObject BuildFlightObject(BoardingPassWalletModel boardingPassWallet)
+        public FlightObject BuildFlightObject(BoardingPassWalletModel boardingPassWallet)
         {
             var objectId = $"{_settings.IssuerId}.{boardingPassWallet.Passenger.ObjectSuffix}";
 
@@ -500,7 +505,7 @@ namespace WalletLibrary.GoogleWallet.Services
                 // 1. Class ID 與 Object ID
                 Id = objectId,
                 ClassId = $"{_settings.IssuerId}.{boardingPassWallet.Passenger.ClassSuffix}",
-                State = "ACTIVE", // ACTIVE, INACTIVE, EXPIRED, etc.
+                State = FlightObjectDefine.State.ACTIVE, // ACTIVE, INACTIVE, EXPIRED, etc.
                 // 2. 使用者資訊（姓名）
                 PassengerName = boardingPassWallet.Passenger.PassengerName,
                 // 3. 座位資訊（座位號碼、艙等）
@@ -587,8 +592,20 @@ namespace WalletLibrary.GoogleWallet.Services
                 TextModulesData = new List<TextModuleData>
                 {
                     boardingPassWallet.Passenger.BaggageInfo.ToTextModule("BaggageInfo"),
-                    FlightWalletUtility.ToDefaultTextModule("Test1", "cs", "123123123"),
-                    ////$"{FlightWalletUtility.FormatFlightNumber(boardingPassWallet.Flight.Operating.CarrierCode, boardingPassWallet.Flight.Operating.FlightNumber)}．{boardingPassWallet.Flight.BoardingDate}．{boardingPassWallet.Passenger.CabinComments} CODE SHARE {FlightWalletUtility.FormatFlightNumber(boardingPassWallet.Passenger.Marketing.CarrierCode, boardingPassWallet.Passenger.Marketing.FlightNumber)}"
+                    //boardingPassWallet.Passenger.BaggageInfo.ToTextModule("CodeShare"),
+                    FlightWalletUtility.ToDefaultTextModuleData(
+                        "CodeShare",
+                        "Code Share Info",
+                        string.Join(
+                            Environment.NewLine,
+                            new List<string>
+                            {
+                                $"{FlightWalletUtility.FormatFlightNumber(boardingPassWallet.Flight.Operating.CarrierCode, boardingPassWallet.Flight.Operating.FlightNumber)}．{boardingPassWallet.Flight.BoardingDate}．{boardingPassWallet.Passenger.CabinComments}",
+                                $"CODE SHARE {FlightWalletUtility.FormatFlightNumber(boardingPassWallet.Passenger.Marketing.CarrierCode, boardingPassWallet.Passenger.Marketing.FlightNumber)}",
+                            }
+                        )
+                    ),
+                    ////
                     //),
                 },
             };
@@ -629,6 +646,7 @@ namespace WalletLibrary.GoogleWallet.Services
                 };
             }
         }
+
         #endregion
 
         #region ClassRepository
@@ -731,7 +749,7 @@ namespace WalletLibrary.GoogleWallet.Services
         {
             try
             {
-                flightClass.ReviewStatus = ReviewStatus.UnderReview.GetDescription();
+                flightClass.ReviewStatus = ReviewStatus.UNDER_REVIEW;
                 var resultFlightClass =
                     await _googleWalletHandler.FlightWallet.ClassRepository.UpdateAsync(
                         flightClass
@@ -762,7 +780,7 @@ namespace WalletLibrary.GoogleWallet.Services
         {
             try
             {
-                flightClass.ReviewStatus = ReviewStatus.UnderReview.GetDescription();
+                flightClass.ReviewStatus = ReviewStatus.UNDER_REVIEW;
                 var resultFlightClass =
                     await _googleWalletHandler.FlightWallet.ClassRepository.PatchAsync(flightClass);
 

@@ -143,17 +143,18 @@ namespace WalletLibrary.DTO
             var textModuleData = new TextModuleData()
             {
                 Id = textId,
+                Header = localizedItem.Header.Default.Value,
+                Body = localizedItem.Body.Default.Value,
                 LocalizedHeader = localizedItem.Header.ToLocalizedString(),
                 LocalizedBody = localizedItem.Body.ToLocalizedString(),
             };
             return textModuleData;
         }
 
-        public static TextModuleData ToDefaultTextModule(
+        public static TextModuleData ToDefaultTextModuleData(
             string textId,
             string textHeader,
-            string textBody,
-            string language = "en-US"
+            string textBody
         )
         {
             if (
@@ -165,22 +166,8 @@ namespace WalletLibrary.DTO
             var textModuleData = new TextModuleData()
             {
                 Id = textId,
-                LocalizedHeader = new LocalizedString
-                {
-                    DefaultValue = new TranslatedString { Value = textHeader, Language = language },
-                    TranslatedValues = new List<TranslatedString>
-                    {
-                        new TranslatedString { Value = textHeader, Language = "zh-TW" },
-                    },
-                },
-                LocalizedBody = new LocalizedString
-                {
-                    DefaultValue = new TranslatedString { Value = textBody, Language = language },
-                    TranslatedValues = new List<TranslatedString>
-                    {
-                        new TranslatedString { Value = textBody, Language = "zh-TW" },
-                    },
-                },
+                Header = textHeader,
+                Body = textBody,
             };
             return textModuleData;
         }
