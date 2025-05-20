@@ -1,4 +1,5 @@
-﻿using Serilog;
+﻿using GoogleWalletApi.Middleware;
+using Serilog;
 using WalletLibrary.GoogleWallet.ServiceCollectionExtensions;
 
 Console.OutputEncoding = System.Text.Encoding.UTF8;
@@ -14,7 +15,6 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 
 builder.Host.UseSerilog(); // 註冊 Serilog 到 ASP.NET Core
-
 builder.Services.AddGoogleWalletServices(builder.Configuration);
 
 // Add services to the container.
@@ -34,6 +34,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();

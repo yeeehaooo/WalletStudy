@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using WalletLibrary.Base.Define;
 using WalletLibrary.GoogleWallet.Base.Interfaces;
-using WalletLibrary.GoogleWallet.Define.Flight;
 using WalletLibrary.GoogleWallet.Services.Interfaces;
+using WalletLibrary.GoogleWallet.WalletTypes.Flight.Define;
 using WalletLibrary.GoogleWallet.WalletTypes.Flight.Models;
 
 namespace GoogleWalletApi.Controllers
@@ -76,9 +76,14 @@ namespace GoogleWalletApi.Controllers
         [HttpPost("GetJWT")]
         public async Task<IActionResult> GetJWT(string? classId, string? objectId)
         {
+            //return Ok(
+            //    await ChinaairLinesService.GetJwtToken(
+            //        $"C{System.DateTime.Now.Date.ToString("yyyyMMdd")}{(string.IsNullOrEmpty(classId) ? "" : $"_{classId}")}",
+            //        $"P{System.DateTime.Now.Date.ToString("yyyyMMdd")}{(string.IsNullOrEmpty(objectId) ? "" : $"_{objectId}")}"
+            //    )
+            //);
             return Ok(
                 await ChinaairLinesService.GetJwtToken(
-                    $"C{System.DateTime.Now.Date.ToString("yyyyMMdd")}{(string.IsNullOrEmpty(classId) ? "" : $"_{classId}")}",
                     $"P{System.DateTime.Now.Date.ToString("yyyyMMdd")}{(string.IsNullOrEmpty(objectId) ? "" : $"_{objectId}")}"
                 )
             );

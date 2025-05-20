@@ -1,4 +1,4 @@
-﻿namespace WalletLibrary.GoogleWallet.Define.Flight
+﻿namespace WalletLibrary.GoogleWallet.WalletTypes.Flight.Define
 {
     /// <summary>
     /// 定義 Google Wallet FlightObject 的狀態。

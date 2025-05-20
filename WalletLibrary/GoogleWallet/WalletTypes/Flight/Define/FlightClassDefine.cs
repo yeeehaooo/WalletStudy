@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Reflection;
 
-namespace WalletLibrary.GoogleWallet.Define.Flight
+namespace WalletLibrary.GoogleWallet.WalletTypes.Flight.Define
 {
     public static class FlightClassDefine
     {

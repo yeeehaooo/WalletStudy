@@ -17,7 +17,7 @@ using WalletLibrary.GoogleWallet.WalletTypes.Flight.Interfaces;
 namespace WalletLibrary.GoogleWallet.ServiceCollectionExtensions
 {
     /// <summary>
-    /// 提供 Google Wallet 相關服務的 DI 註冊擴充方法。
+    /// 範例: 提供多組 Google Wallet 相關服務的 DI 註冊擴充方法, By CompanyCode 注入。
     /// </summary>
     public static class GoogleWalletServiceExtensions
     {

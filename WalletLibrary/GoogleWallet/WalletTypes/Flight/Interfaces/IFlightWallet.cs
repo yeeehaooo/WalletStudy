@@ -1,7 +1,4 @@
-﻿using Google.Apis.Walletobjects.v1.Data;
-using WalletLibrary.Base.Models;
-
-namespace WalletLibrary.GoogleWallet.WalletTypes.Flight.Interfaces
+﻿namespace WalletLibrary.GoogleWallet.WalletTypes.Flight.Interfaces
 {
     /// <summary>
     /// 定義 Google Wallet 資源物件的標準操作介面，包含針對 Google Wallet 資源（如 FlightClass、FlightObject 等）的取得、建立、更新、部分更新、添加訊息與更新狀態等操作功能。<br/>

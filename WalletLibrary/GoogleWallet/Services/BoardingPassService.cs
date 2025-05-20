@@ -1,14 +1,12 @@
-﻿using System.Net;
-using Google.Apis.Walletobjects.v1.Data;
+﻿using Google.Apis.Walletobjects.v1.Data;
 using Microsoft.Extensions.Logging;
-using WalletLibrary.Base.Models;
 using WalletLibrary.DTO;
 using WalletLibrary.GoogleWallet.Base.Interfaces;
-using WalletLibrary.GoogleWallet.Define.Flight;
 using WalletLibrary.GoogleWallet.Services.Interfaces;
 using WalletLibrary.GoogleWallet.Settings;
+using WalletLibrary.GoogleWallet.WalletTypes.Flight.Define;
 using WalletLibrary.GoogleWallet.WalletTypes.Flight.Models;
-using static WalletLibrary.GoogleWallet.Define.Flight.FlightClassDefine;
+using static WalletLibrary.GoogleWallet.WalletTypes.Flight.Define.FlightClassDefine;
 using GoogleApiUri = Google.Apis.Walletobjects.v1.Data.Uri;
 
 namespace WalletLibrary.GoogleWallet.Services
@@ -613,46 +611,26 @@ namespace WalletLibrary.GoogleWallet.Services
         }
 
         #region JWT
-        public async Task<BaseReponseModel<string>> GetJwtToken(
-            string flightClassId,
-            string flightObjectId
-        )
+        public async Task<string> GetJwtToken(string flightClassId, string flightObjectId)
         {
-            try
-            {
-                var jwtToken = await _googleWalletHandler.FlightWallet.GetJwtToken(
-                    $"{_issuerId}.{flightClassId}",
-                    $"{_issuerId}.{flightObjectId}"
-                );
-                return new BaseReponseModel<string>
-                {
-                    StatusCode = (int)HttpStatusCode.InternalServerError,
-                    Data = jwtToken,
-                };
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(
-                    "Class[{ClassId}],Object[{flightObjectId}] Get Error: {ErrorMessage}",
-                    flightClassId,
-                    flightObjectId,
-                    ex.Message
-                );
-                return new BaseReponseModel<string>
-                {
-                    StatusCode = (int)HttpStatusCode.InternalServerError,
-                    Message =
-                        $"Class[{flightClassId}],Object[{flightObjectId}] Get Error: {ex.Message}",
-                };
-            }
+            return await _googleWalletHandler.FlightWallet.GetJwtToken(
+                $"{_issuerId}.{flightClassId}",
+                $"{_issuerId}.{flightObjectId}"
+            );
         }
 
+        public async Task<string> GetJwtToken(string flightObjectId)
+        {
+            return await _googleWalletHandler.FlightWallet.GetJwtToken(
+                $"{_issuerId}.{flightObjectId}"
+            );
+        }
         #endregion
 
         #region ClassRepository
-        public Task<BaseReponseModel<FlightClass>> GetClassByClassIdAsync(string classId)
+        public async Task<FlightClass> GetClassByClassIdAsync(string classId)
         {
-            return GetClassByResourceIdAsync($"{_issuerId}.{classId}");
+            return await GetClassByResourceIdAsync($"{_issuerId}.{classId}");
         }
 
         /// <summary>
@@ -660,443 +638,112 @@ namespace WalletLibrary.GoogleWallet.Services
         /// </summary>
         /// <param name="resourceId">格式: IssuerId,ClassId</param>
         /// <returns></returns>
-        public async Task<BaseReponseModel<FlightClass>> GetClassByResourceIdAsync(
-            string resourceId
-        )
+        public async Task<FlightClass> GetClassByResourceIdAsync(string resourceId)
         {
-            try
-            {
-                var flightClass = await _googleWalletHandler.FlightWallet.ClassRepository.GetAsync(
-                    resourceId
-                );
-                return new BaseReponseModel<FlightClass>
-                {
-                    StatusCode = (int)HttpStatusCode.InternalServerError,
-                    Data = flightClass,
-                };
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(
-                    "Class[{ResourceId}] Get Error: {ErrorMessage}",
-                    resourceId,
-                    ex.Message
-                );
-                return new BaseReponseModel<FlightClass>
-                {
-                    StatusCode = (int)HttpStatusCode.InternalServerError,
-                    Message = $"Class[{resourceId}] Get Error: {ex.Message}",
-                };
-            }
+            return await _googleWalletHandler.FlightWallet.ClassRepository.GetAsync(resourceId);
         }
 
-        public async Task<BaseReponseModel<FlightClass>> InsertClassAsync(
-            BoardingPassWalletModel boardingPassModel
-        )
+        public async Task<FlightClass> InsertClassAsync(BoardingPassWalletModel boardingPassModel)
         {
-            string resourceId = $"{_issuerId}.{boardingPassModel.Flight.ClassSuffix}";
-            try
-            {
-                var flightcalss = BuildFlightClass(boardingPassModel);
-                return await InsertClassAsync(flightcalss);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(
-                    "Class[{ResourceId}] Insert Error: {ErrorMessage}",
-                    resourceId,
-                    ex.Message
-                );
-                return new BaseReponseModel<FlightClass>
-                {
-                    StatusCode = (int)HttpStatusCode.InternalServerError,
-                    Message = $"Class[{resourceId}] Insert Error: {ex.Message}",
-                };
-            }
+            var flightClass = BuildFlightClass(boardingPassModel);
+            return await InsertClassAsync(flightClass);
         }
 
-        public async Task<BaseReponseModel<FlightClass>> InsertClassAsync(FlightClass flightClass)
+        public async Task<FlightClass> InsertClassAsync(FlightClass flightClass)
         {
-            try
-            {
-                var resultFlightClass =
-                    await _googleWalletHandler.FlightWallet.ClassRepository.InsertAsync(
-                        flightClass
-                    );
-
-                return new BaseReponseModel<FlightClass>
-                {
-                    StatusCode = (int)HttpStatusCode.OK,
-                    Data = resultFlightClass,
-                };
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(
-                    "Class[{ResourceId}] Insert Error: {ErrorMessage}",
-                    flightClass.Id,
-                    ex.Message
-                );
-                return new BaseReponseModel<FlightClass>
-                {
-                    StatusCode = (int)HttpStatusCode.InternalServerError,
-                    Message = $"Class[{flightClass.Id}] Insert Error: {ex.Message}",
-                };
-            }
+            return await _googleWalletHandler.FlightWallet.ClassRepository.InsertAsync(flightClass);
         }
 
-        public async Task<BaseReponseModel<FlightClass>> UpdateClassAsync(FlightClass flightClass)
+        public async Task<FlightClass> UpdateClassAsync(FlightClass flightClass)
         {
-            try
-            {
-                flightClass.ReviewStatus = ReviewStatus.UNDER_REVIEW;
-                var resultFlightClass =
-                    await _googleWalletHandler.FlightWallet.ClassRepository.UpdateAsync(
-                        flightClass
-                    );
-
-                return new BaseReponseModel<FlightClass>
-                {
-                    StatusCode = (int)HttpStatusCode.OK,
-                    Data = resultFlightClass,
-                };
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(
-                    "Class[{ResourceId}] Update Error: {ErrorMessage}",
-                    flightClass.Id,
-                    ex.Message
-                );
-                return new BaseReponseModel<FlightClass>
-                {
-                    StatusCode = (int)HttpStatusCode.InternalServerError,
-                    Message = $"Class[{flightClass.Id}] Update Error: {ex.Message}",
-                };
-            }
+            flightClass.ReviewStatus = ReviewStatus.UNDER_REVIEW;
+            return await _googleWalletHandler.FlightWallet.ClassRepository.UpdateAsync(flightClass);
         }
 
-        public async Task<BaseReponseModel<FlightClass>> PatchClassAsync(FlightClass flightClass)
+        public async Task<FlightClass> PatchClassAsync(FlightClass flightClass)
         {
-            try
-            {
-                flightClass.ReviewStatus = ReviewStatus.UNDER_REVIEW;
-                var resultFlightClass =
-                    await _googleWalletHandler.FlightWallet.ClassRepository.PatchAsync(flightClass);
-
-                return new BaseReponseModel<FlightClass>
-                {
-                    StatusCode = (int)HttpStatusCode.OK,
-                    Data = resultFlightClass,
-                };
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(
-                    "Class[{ResourceId}] Patch Error: {ErrorMessage}",
-                    flightClass.Id,
-                    ex.Message
-                );
-                return new BaseReponseModel<FlightClass>
-                {
-                    StatusCode = (int)HttpStatusCode.InternalServerError,
-                    Message = $"Class[{flightClass.Id}] Patch Error: {ex.Message}",
-                };
-            }
+            flightClass.ReviewStatus = ReviewStatus.UNDER_REVIEW;
+            return await _googleWalletHandler.FlightWallet.ClassRepository.PatchAsync(flightClass);
         }
 
-        public async Task<BaseReponseModel<FlightClass>> AddClassMessageAsync(
+        public async Task<FlightClass> AddClassMessageAsync(
             AddMessageRequest addMessageRequest,
             string resourceId
         )
         {
-            try
-            {
-                var resultFlightClass =
-                    await _googleWalletHandler.FlightWallet.ClassRepository.AddMessageAsync(
-                        addMessageRequest,
-                        resourceId
-                    );
-
-                return new BaseReponseModel<FlightClass>
-                {
-                    StatusCode = (int)HttpStatusCode.OK,
-                    Data = resultFlightClass,
-                };
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(
-                    "Class[{ResourceId}] Add Message Error: {ErrorMessage}",
-                    resourceId,
-                    ex.Message
-                );
-                return new BaseReponseModel<FlightClass>
-                {
-                    StatusCode = (int)HttpStatusCode.InternalServerError,
-                    Message = $"Class[{resourceId}] Add Message Error: {ex.Message}",
-                };
-            }
+            return await _googleWalletHandler.FlightWallet.ClassRepository.AddMessageAsync(
+                addMessageRequest,
+                resourceId
+            );
         }
         #endregion
 
-
-        #region ClassRepository
-
-        public Task<BaseReponseModel<FlightObject>> GetObjectByObjectIdAsync(string objectId)
+        #region ObjectRepository
+        public async Task<FlightObject> GetObjectByObjectIdAsync(string objectId)
         {
-            return GetObjectByResourceIdAsync($"{_issuerId}.{objectId}");
+            return await GetObjectByResourceIdAsync($"{_issuerId}.{objectId}");
         }
 
-        public async Task<BaseReponseModel<FlightObject>> GetObjectByResourceIdAsync(
-            string resourceId
-        )
+        public async Task<FlightObject> GetObjectByResourceIdAsync(string resourceId)
         {
-            try
-            {
-                var flightObject =
-                    await _googleWalletHandler.FlightWallet.ObjectRepository.GetAsync(resourceId);
-
-                return new BaseReponseModel<FlightObject>
-                {
-                    StatusCode = (int)HttpStatusCode.OK,
-                    Message = "",
-                    Data = flightObject,
-                };
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(
-                    "Object[{ResourceId}] Get Error: {ErrorMessage}",
-                    resourceId,
-                    ex.Message
-                );
-                return new BaseReponseModel<FlightObject>
-                {
-                    StatusCode = (int)HttpStatusCode.InternalServerError,
-                    Message = $"Object[{resourceId}] Get Error: {ex.Message}",
-                };
-            }
+            return await _googleWalletHandler.FlightWallet.ObjectRepository.GetAsync(resourceId);
         }
 
-        public async Task<BaseReponseModel<FlightObject>> InsertObjectAsync(
-            BoardingPassWalletModel boardingPassModel
-        )
+        public async Task<FlightObject> InsertObjectAsync(BoardingPassWalletModel boardingPassModel)
         {
-            string resourceId = $"{_issuerId}.{boardingPassModel.Passenger.ObjectSuffix}";
-            try
-            {
-                var flightobject = BuildFlightObject(boardingPassModel);
-                return await InsertObjectAsync(flightobject);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(
-                    "Object[{ResourceId}] Insert Error: {ErrorMessage}",
-                    resourceId,
-                    ex.Message
-                );
-                return new BaseReponseModel<FlightObject>
-                {
-                    StatusCode = (int)HttpStatusCode.InternalServerError,
-                    Message = $"Object[{resourceId}] Insert Error: {ex.Message}",
-                };
-            }
+            var flightObject = BuildFlightObject(boardingPassModel);
+            return await InsertObjectAsync(flightObject);
         }
 
-        public async Task<BaseReponseModel<FlightObject>> InsertObjectAsync(
-            FlightObject flightObject
-        )
+        public async Task<FlightObject> InsertObjectAsync(FlightObject flightObject)
         {
-            try
-            {
-                var resultFlightObject =
-                    await _googleWalletHandler.FlightWallet.ObjectRepository.InsertAsync(
-                        flightObject
-                    );
-
-                return new BaseReponseModel<FlightObject>
-                {
-                    StatusCode = (int)HttpStatusCode.OK,
-                    Data = resultFlightObject,
-                };
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(
-                    "Object[{ResourceId}] Insert Error: {ErrorMessage}",
-                    flightObject.Id,
-                    ex.Message
-                );
-                return new BaseReponseModel<FlightObject>
-                {
-                    StatusCode = (int)HttpStatusCode.InternalServerError,
-                    Message = $"Object[{flightObject.Id}] Insert Error: {ex.Message}",
-                };
-            }
+            return await _googleWalletHandler.FlightWallet.ObjectRepository.InsertAsync(
+                flightObject
+            );
         }
 
-        public async Task<BaseReponseModel<FlightObject>> UpdateObjectAsync(
-            FlightObject flightObject
-        )
+        public async Task<FlightObject> UpdateObjectAsync(FlightObject flightObject)
         {
-            try
-            {
-                var resultFlightObject =
-                    await _googleWalletHandler.FlightWallet.ObjectRepository.UpdateAsync(
-                        flightObject
-                    );
-
-                return new BaseReponseModel<FlightObject>
-                {
-                    StatusCode = (int)HttpStatusCode.OK,
-                    Data = resultFlightObject,
-                };
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(
-                    "Object[{ResourceId}] Update Error: {ErrorMessage}",
-                    flightObject.Id,
-                    ex.Message
-                );
-                return new BaseReponseModel<FlightObject>
-                {
-                    StatusCode = (int)HttpStatusCode.InternalServerError,
-                    Message = $"Object[{flightObject.Id}] Update Error: {ex.Message}",
-                };
-            }
+            return await _googleWalletHandler.FlightWallet.ObjectRepository.UpdateAsync(
+                flightObject
+            );
         }
 
-        public async Task<BaseReponseModel<FlightObject>> PatchObjectAsync(
-            FlightObject flightObject
-        )
+        public async Task<FlightObject> PatchObjectAsync(FlightObject flightObject)
         {
-            try
-            {
-                flightObject.HeroImage = null;
-                var resultFlightObject =
-                    await _googleWalletHandler.FlightWallet.ObjectRepository.PatchAsync(
-                        flightObject
-                    );
-
-                return new BaseReponseModel<FlightObject>
-                {
-                    StatusCode = (int)HttpStatusCode.OK,
-                    Data = resultFlightObject,
-                };
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(
-                    "Object[{ResourceId}] Patch Error :{ErrorMessage}",
-                    flightObject.Id,
-                    ex.Message
-                );
-                return new BaseReponseModel<FlightObject>
-                {
-                    StatusCode = (int)HttpStatusCode.InternalServerError,
-                    Message = $"Object[{flightObject.Id}] Patch Error: {ex.Message}",
-                };
-            }
+            flightObject.HeroImage = null;
+            return await _googleWalletHandler.FlightWallet.ObjectRepository.PatchAsync(
+                flightObject
+            );
         }
 
-        public async Task<BaseReponseModel<FlightObject>> AddObjectMessageAsync(
+        public async Task<FlightObject> AddObjectMessageAsync(
             AddMessageRequest addMessageRequest,
             string resourceId
         )
         {
-            try
-            {
-                var resultFlightObject =
-                    await _googleWalletHandler.FlightWallet.ObjectRepository.AddMessageAsync(
-                        addMessageRequest,
-                        resourceId
-                    );
-
-                return new BaseReponseModel<FlightObject>
-                {
-                    StatusCode = (int)HttpStatusCode.OK,
-                    Data = resultFlightObject,
-                };
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(
-                    "Object[{ResourceId}] Add Message Error :{ErrorMessage}",
-                    resourceId,
-                    ex.Message
-                );
-                return new BaseReponseModel<FlightObject>
-                {
-                    StatusCode = (int)HttpStatusCode.InternalServerError,
-                    Message = $"Object[{resourceId}] Add Message Error :{ex.Message}",
-                };
-            }
+            return await _googleWalletHandler.FlightWallet.ObjectRepository.AddMessageAsync(
+                addMessageRequest,
+                resourceId
+            );
         }
 
-        public async Task<BaseReponseModel<FlightObject>> ExpireObjectAsync(string resourceId)
+        public async Task<FlightObject> ExpireObjectAsync(string resourceId)
         {
-            try
-            {
-                var resultFlightObject =
-                    await _googleWalletHandler.FlightWallet.ObjectRepository.ExpireObjectAsync(
-                        resourceId
-                    );
-
-                return new BaseReponseModel<FlightObject>
-                {
-                    StatusCode = (int)HttpStatusCode.OK,
-                    Data = resultFlightObject,
-                };
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(
-                    "Object[{ResourceId}] Expire Error: {ErrorMessage}",
-                    resourceId,
-                    ex.Message
-                );
-                return new BaseReponseModel<FlightObject>
-                {
-                    StatusCode = (int)HttpStatusCode.InternalServerError,
-                    Message = $"Object[{resourceId}] Expire Error: {ex.Message}",
-                };
-            }
+            return await _googleWalletHandler.FlightWallet.ObjectRepository.ExpireObjectAsync(
+                resourceId
+            );
         }
 
-        public async Task<BaseReponseModel<FlightObject>> UpdateObjectStatusAsync(
+        public async Task<FlightObject> UpdateObjectStatusAsync(
             string resourceId,
             string objectState
         )
         {
-            try
-            {
-                var resultFlightObject =
-                    await _googleWalletHandler.FlightWallet.ObjectRepository.UpdateObjectStatusAsync(
-                        resourceId,
-                        objectState
-                    );
-
-                return new BaseReponseModel<FlightObject>
-                {
-                    StatusCode = (int)HttpStatusCode.OK,
-                    Data = resultFlightObject,
-                };
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(
-                    "Object[{ResourceId}] Update Status Error: {ErrorMessage}",
-                    resourceId,
-                    ex.Message
-                );
-                return new BaseReponseModel<FlightObject>
-                {
-                    StatusCode = (int)HttpStatusCode.InternalServerError,
-                    Message = $"Object[{resourceId}] Update Status Error: {ex.Message}",
-                };
-            }
+            return await _googleWalletHandler.FlightWallet.ObjectRepository.UpdateObjectStatusAsync(
+                resourceId,
+                objectState
+            );
         }
         #endregion
     }

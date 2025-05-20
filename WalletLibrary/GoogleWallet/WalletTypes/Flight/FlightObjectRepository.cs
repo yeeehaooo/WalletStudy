@@ -1,7 +1,7 @@
 ﻿using Google.Apis.Walletobjects.v1;
 using Google.Apis.Walletobjects.v1.Data;
 using Microsoft.Extensions.Logging;
-using WalletLibrary.GoogleWallet.Define.Flight;
+using WalletLibrary.GoogleWallet.WalletTypes.Flight.Define;
 using WalletLibrary.GoogleWallet.WalletTypes.Flight.Interfaces;
 using WalletLibrary.Logger;
 
@@ -63,7 +63,7 @@ namespace WalletLibrary.GoogleWallet.WalletTypes.Flight
             catch (IOException ioEx)
             {
                 // IO 錯誤，例如無法讀取回應流
-                HandleException(ioEx, "getting FlightObject[IO Error]");
+                HandleIOException(ioEx, "getting FlightObject[IO Error]");
                 throw;
             }
             catch (Exception ex)
@@ -106,7 +106,7 @@ namespace WalletLibrary.GoogleWallet.WalletTypes.Flight
             catch (IOException ioEx)
             {
                 // IO 錯誤，例如無法讀取回應流
-                HandleException(ioEx, "inserting FlightObject[IO Error]");
+                HandleIOException(ioEx, "inserting FlightObject[IO Error]");
                 throw;
             }
             catch (Exception ex)
@@ -152,7 +152,7 @@ namespace WalletLibrary.GoogleWallet.WalletTypes.Flight
             catch (IOException ioEx)
             {
                 // IO 錯誤，例如無法讀取回應流
-                HandleException(ioEx, "updating FlightObject[IO Error]");
+                HandleIOException(ioEx, "updating FlightObject[IO Error]");
                 throw;
             }
             catch (Exception ex)
@@ -198,7 +198,7 @@ namespace WalletLibrary.GoogleWallet.WalletTypes.Flight
             catch (IOException ioEx)
             {
                 // IO 錯誤，例如無法讀取回應流
-                HandleException(ioEx, "patching FlightObject[IO Error]");
+                HandleIOException(ioEx, "patching FlightObject[IO Error]");
                 throw;
             }
             catch (Exception ex)
@@ -251,7 +251,7 @@ namespace WalletLibrary.GoogleWallet.WalletTypes.Flight
             catch (IOException ioEx)
             {
                 // IO 錯誤，例如無法讀取回應流
-                HandleException(ioEx, "adding Message to FlightObject[IO Error]");
+                HandleIOException(ioEx, "adding Message to FlightObject[IO Error]");
                 throw;
             }
             catch (Exception ex)
@@ -299,7 +299,7 @@ namespace WalletLibrary.GoogleWallet.WalletTypes.Flight
             catch (IOException ioEx)
             {
                 // IO 錯誤，例如無法讀取回應流
-                HandleException(ioEx, "expire FlightObject[IO Error]");
+                HandleIOException(ioEx, "expire FlightObject[IO Error]");
                 throw;
             }
             catch (Exception ex)
@@ -351,7 +351,7 @@ namespace WalletLibrary.GoogleWallet.WalletTypes.Flight
             catch (IOException ioEx)
             {
                 // IO 錯誤，例如無法讀取回應流
-                HandleException(ioEx, "updating Status to FlightObject[IO Error]");
+                HandleIOException(ioEx, "updating Status to FlightObject[IO Error]");
                 throw;
             }
             catch (Exception ex)

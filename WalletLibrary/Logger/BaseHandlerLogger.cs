@@ -1,6 +1,5 @@
 ﻿using Google;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 
 namespace WalletLibrary.Logger
 {
@@ -9,7 +8,7 @@ namespace WalletLibrary.Logger
     /// </summary>
     public class BaseHandlerLogger<T>
     {
-        private ILogger<T> _logger;
+        private readonly ILogger<T> _logger;
 
         public BaseHandlerLogger(ILogger<T> logger)
         {
@@ -19,30 +18,51 @@ namespace WalletLibrary.Logger
         /// <summary>
         /// 將 API 回應物件序列化為 JSON 並輸出到主控台，方便除錯與監控。
         /// </summary>
-        /// <param name="response">任意型別的 API 回應物件。</param>
-        protected void LogResponse(object response)
+        public void LogResponse(object response, string action = "response")
         {
-            _logger.LogDebug(JsonConvert.SerializeObject(response));
+            _logger.LogDebug("Action: {Action}, Response: {@Response}", action, response);
         }
 
         /// <summary>
-        /// 輸出例外訊息與對應操作名稱，協助診斷 API 操作失敗原因。
+        /// 結構化輸出 Google API 例外
         /// </summary>
-        /// <param name="ex">捕獲的例外物件。</param>
-        /// <param name="action">操作名稱，例如 "insert", "get" 等。</param>
-        protected void HandleGoogleApiException(GoogleApiException ex, string action)
+        public void HandleGoogleApiException(GoogleApiException ex, string action)
         {
-            _logger.LogError("Error during {action}: {ErrorMessage}", action, ex.Error.Message);
+            _logger.LogError(
+                ex,
+                "Google API Error during {Action}. Code: {ErrorCode}, Message: {ErrorMessage}, Reason: {Reason}",
+                action,
+                ex.Error.Code,
+                ex.Error.Message,
+                ex.Error.Errors?.FirstOrDefault()?.Reason
+            );
+        }
+
+        public void HandleIOException(IOException ex, string action)
+        {
+            _logger.LogError(
+                ex,
+                "IO error during {Action}. Message: {ErrorMessage}, ExceptionType: {ExceptionType}, HResult: {HResult}, Source: {Source}",
+                action,
+                ex.Message,
+                ex.GetType().Name,
+                ex.HResult,
+                ex.Source
+            );
         }
 
         /// <summary>
-        /// 輸出例外訊息與對應操作名稱，協助診斷 API 操作失敗原因。
+        /// 一般例外處理，支援結構化日誌輸出
         /// </summary>
-        /// <param name="ex">捕獲的例外物件。</param>
-        /// <param name="action">操作名稱，例如 "insert", "get" 等。</param>
-        protected void HandleException(Exception ex, string action)
+        public void HandleException(Exception ex, string action)
         {
-            _logger.LogError("Error during {action}: {ErrorMessage}", action, ex.Message);
+            _logger.LogError(
+                ex,
+                "Unexpected error during {Action}. Message: {ErrorMessage}, ExceptionType: {ExceptionType}",
+                action,
+                ex.Message,
+                ex.GetType().Name
+            );
         }
     }
 }

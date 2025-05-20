@@ -6,13 +6,12 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using WalletLibrary.GoogleWallet.Context.Interfaces;
 using WalletLibrary.GoogleWallet.WalletTypes.Flight.Interfaces;
+using WalletLibrary.Logger;
 
 namespace WalletLibrary.GoogleWallet.WalletTypes.Flight
 {
-    public class FlightWallet : IFlightWallet
+    public class FlightWallet : BaseHandlerLogger<FlightWallet>, IFlightWallet
     {
-        private readonly ILogger<FlightWallet> _logger;
-
         /// <summary>
         /// 航班類別的處理器，用於與 Google Wallet API 交互。
         /// </summary>
@@ -23,6 +22,9 @@ namespace WalletLibrary.GoogleWallet.WalletTypes.Flight
         /// </summary>
         public IFlightObjectRepository ObjectRepository { get; }
 
+        /// <summary>
+        /// Google Wallet 基本設定
+        /// </summary>
         private IGoogleWalletContext WalletContext { get; }
 
         public FlightWallet(
@@ -31,8 +33,8 @@ namespace WalletLibrary.GoogleWallet.WalletTypes.Flight
             IFlightClassRepository flightClass,
             IFlightObjectRepository flightObject
         )
+            : base(logger)
         {
-            _logger = logger;
             WalletContext = walletContext;
             ClassRepository = flightClass;
             ObjectRepository = flightObject;
@@ -89,10 +91,7 @@ namespace WalletLibrary.GoogleWallet.WalletTypes.Flight
             JwtSecurityToken jwt = new JwtSecurityToken(new JwtHeader(signingCredentials), claims);
             string token = new JwtSecurityTokenHandler().WriteToken(jwt);
 
-            _logger.LogDebug(
-                "Add to Google Wallet link: https://pay.google.com/gp/v/save/{token}",
-                token
-            );
+            LogResponse($"Add to Google Wallet link: https://pay.google.com/gp/v/save/{token}");
             return $"https://pay.google.com/gp/v/save/{token}";
         }
 
@@ -149,10 +148,7 @@ namespace WalletLibrary.GoogleWallet.WalletTypes.Flight
             JwtSecurityToken jwt = new JwtSecurityToken(new JwtHeader(signingCredentials), claims);
             string token = new JwtSecurityTokenHandler().WriteToken(jwt);
 
-            _logger.LogDebug(
-                "Add to Google Wallet link: https://pay.google.com/gp/v/save/{token}",
-                token
-            );
+            LogResponse($"Add to Google Wallet link: https://pay.google.com/gp/v/save/{token}");
             return $"https://pay.google.com/gp/v/save/{token}";
         }
     }

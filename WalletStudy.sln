@@ -5,7 +5,7 @@ VisualStudioVersion = 17.13.35825.156
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WalletLibrary", "WalletLibrary\WalletLibrary.csproj", "{ABAA670D-CFE4-486B-8CA4-760D605EF981}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WalletApi", "WalletApi\WalletApi.csproj", "{26277041-6B39-474D-980F-9CD34A4A40A5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GoogleWalletApi", "GoogleWalletApi\GoogleWalletApi.csproj", "{26277041-6B39-474D-980F-9CD34A4A40A5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
