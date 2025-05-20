@@ -26,59 +26,48 @@
         //public string SaveBaseUrl { get; set; }
 
         /// <summary>
-        /// 票券上方的主圖 URI，通常為橫幅圖片。
+        /// 背景顏色 #000000。
+        /// </summary>
+        public string HexBackgroundColor { get; set; }
+
+        /// <summary>
+        /// 航空公司Logo的Id。
+        /// </summary>
+        public string LogoId { get; set; }
+
+        /// <summary>
+        /// 航空公司Logo的URI。
+        /// </summary>
+        public string LogoUri { get; set; }
+
+        /// <summary>
+        /// 航空公司Logo的文字說明。
+        /// </summary>
+        public string LogoDescription { get; set; }
+
+        /// <summary>
+        /// 航空公司主圖的Id。
+        /// </summary>
+        public string HeroImageId { get; set; }
+
+        /// <summary>
+        /// 航空公司主圖的URI。
         /// </summary>
         public string HeroImageUri { get; set; }
 
         /// <summary>
-        /// 主圖的文字說明，會顯示給使用者。
+        /// 航空公司主圖的文字說明。
         /// </summary>
         public string HeroImageDescription { get; set; }
 
         /// <summary>
-        /// 圖片模組中的圖片 URI，會顯示在票券下方的區域。
+        /// Tsa PreCheck ICon Uri
         /// </summary>
-        public string ImageModuleUri { get; set; }
+        public string SecurityProgramLogo { get; set; }
 
         /// <summary>
-        /// 圖片模組圖片的說明。
+        /// SkyPriority ICon Uri
         /// </summary>
-        public string ImageModuleDescription { get; set; }
-
-        /// <summary>
-        /// 連結模組的 URI 清單，例如地圖或電話連結。
-        /// </summary>
-        public List<LinkModuleUriSetting> LinkModuleUris { get; set; }
-
-        /// <summary>
-        /// 預設地點的緯度，用於票券的定位模組。
-        /// </summary>
-        public double DefaultLatitude { get; set; }
-
-        /// <summary>
-        /// 預設地點的經度，用於票券的定位模組。
-        /// </summary>
-        public double DefaultLongitude { get; set; }
-    }
-
-    /// <summary>
-    /// 單一連結模組 URI 的設定。
-    /// </summary>
-    public class LinkModuleUriSetting
-    {
-        /// <summary>
-        /// URI 的值，例如地圖網址、電話或網站。
-        /// </summary>
-        public string UriValue { get; set; }
-
-        /// <summary>
-        /// URI 的描述文字，會顯示給使用者。
-        /// </summary>
-        public string Description { get; set; }
-
-        /// <summary>
-        /// 此 URI 模組的唯一識別 ID。
-        /// </summary>
-        public string Id { get; set; }
+        public string BoardingPrivilegeImage { get; set; }
     }
 }

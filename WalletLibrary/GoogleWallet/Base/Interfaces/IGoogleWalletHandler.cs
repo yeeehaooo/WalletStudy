@@ -1,6 +1,6 @@
 ﻿using WalletLibrary.GoogleWallet.Context;
-using WalletLibrary.GoogleWallet.Flight.Interfaces;
 using WalletLibrary.GoogleWallet.Settings;
+using WalletLibrary.GoogleWallet.WalletTypes.Flight.Interfaces;
 
 namespace WalletLibrary.GoogleWallet.Base.Interfaces
 {

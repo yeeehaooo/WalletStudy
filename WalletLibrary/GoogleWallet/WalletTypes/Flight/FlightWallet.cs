@@ -1,19 +1,25 @@
-﻿using Google.Apis.Walletobjects.v1.Data;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Net;
+using Google.Apis.Walletobjects.v1.Data;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System.IdentityModel.Tokens.Jwt;
+using WalletLibrary.Base.Models;
 using WalletLibrary.GoogleWallet.Context.Interfaces;
-using WalletLibrary.GoogleWallet.Flight.Interfaces;
+using WalletLibrary.GoogleWallet.WalletTypes.Flight.Interfaces;
 
-namespace WalletLibrary.GoogleWallet.Flight
+namespace WalletLibrary.GoogleWallet.WalletTypes.Flight
 {
     public class FlightWallet : IFlightWallet
     {
+        private readonly ILogger<FlightWallet> _logger;
+
         /// <summary>
         /// 航班類別的處理器，用於與 Google Wallet API 交互。
         /// </summary>
         public IFlightClassRepository ClassRepository { get; }
+
         /// <summary>
         /// 航班對象的處理器，用於與 Google Wallet API 交互。
         /// </summary>
@@ -22,10 +28,13 @@ namespace WalletLibrary.GoogleWallet.Flight
         private IGoogleWalletContext WalletContext { get; }
 
         public FlightWallet(
+            ILogger<FlightWallet> logger,
             IGoogleWalletContext walletContext,
             IFlightClassRepository flightClass,
-            IFlightObjectRepository flightObject)
+            IFlightObjectRepository flightObject
+        )
         {
+            _logger = logger;
             WalletContext = walletContext;
             ClassRepository = flightClass;
             ObjectRepository = flightObject;
@@ -39,7 +48,7 @@ namespace WalletLibrary.GoogleWallet.Flight
         /// <returns>返回一個 "Add to Google Wallet" 的鏈接。</returns>
         public async Task<string> CreateJWTNewObjects(
             FlightClass flightClass,
-            Google.Apis.Walletobjects.v1.Data.FlightObject flightObject
+            FlightObject flightObject
         )
         {
             // 設置 JSON 序列化設置以忽略空值。
@@ -96,9 +105,10 @@ namespace WalletLibrary.GoogleWallet.Flight
             JwtSecurityToken jwt = new JwtSecurityToken(new JwtHeader(signingCredentials), claims);
             string token = new JwtSecurityTokenHandler().WriteToken(jwt);
 
-            Console.WriteLine("Add to Google Wallet link");
-            Console.WriteLine($"https://pay.google.com/gp/v/save/{token}");
-
+            _logger.LogInformation(
+                "Add to Google Wallet link: https://pay.google.com/gp/v/save/{token}",
+                token
+            );
             return $"https://pay.google.com/gp/v/save/{token}";
         }
 
@@ -108,7 +118,7 @@ namespace WalletLibrary.GoogleWallet.Flight
         /// <param name="flightClassId">航班類別的 ID。</param>
         /// <param name="flightObjectId">航班對象的 ID。</param>
         /// <returns>返回一個 "Add to Google Wallet" 的鏈接。</returns>
-        public async Task<string> CreateJWTNewObjects(string flightClassId, string flightObjectId)
+        public async Task<string> GetJwtToken(string flightClassId, string flightObjectId)
         {
             // 設置 JSON 序列化設置以忽略空值。
             JsonSerializerSettings excludeNulls = new JsonSerializerSettings()
@@ -116,17 +126,17 @@ namespace WalletLibrary.GoogleWallet.Flight
                 NullValueHandling = NullValueHandling.Ignore,
             };
             // 檢查航班類別是否存在。
-            var createFlightClass = await ClassRepository.GetAsync(flightClassId);
+            var getFlightClass = await ClassRepository.GetAsync(flightClassId);
             // 將航班類別序列化為 JSON。
             JObject serializedClass = JObject.Parse(
-                JsonConvert.SerializeObject(createFlightClass, excludeNulls)
+                JsonConvert.SerializeObject(getFlightClass, excludeNulls)
             );
 
             // 檢查航班對象是否存在。
-            var createFlightObject = await ObjectRepository.GetAsync(flightObjectId);
+            var getFlightObject = await ObjectRepository.GetAsync(flightObjectId);
             // 將航班對象序列化為 JSON。
             JObject serializedObject = JObject.Parse(
-                JsonConvert.SerializeObject(createFlightObject, excludeNulls)
+                JsonConvert.SerializeObject(getFlightObject, excludeNulls)
             );
 
             // 創建 JWT 負載作為 JSON 對象。
@@ -163,70 +173,11 @@ namespace WalletLibrary.GoogleWallet.Flight
             JwtSecurityToken jwt = new JwtSecurityToken(new JwtHeader(signingCredentials), claims);
             string token = new JwtSecurityTokenHandler().WriteToken(jwt);
 
-            Console.WriteLine("Add to Google Wallet link");
-            Console.WriteLine($"https://pay.google.com/gp/v/save/{token}");
-
+            _logger.LogDebug(
+                "Add to Google Wallet link: https://pay.google.com/gp/v/save/{token}",
+                token
+            );
             return $"https://pay.google.com/gp/v/save/{token}";
-        }
-
-        public Task<FlightClass> GetClassAsync(string resourceId)
-        {
-            return ClassRepository.GetAsync(resourceId);
-        }
-
-        public Task<FlightClass> InsertClassAsync(FlightClass flightClass)
-        {
-            return ClassRepository.InsertAsync(flightClass);
-        }
-
-        public Task<FlightClass> UpdateClassAsync(FlightClass flightClass)
-        {
-            return ClassRepository.UpdateAsync(flightClass);
-        }
-
-        public Task<FlightClass> PatchClassAsync(FlightClass flightClass)
-        {
-            return ClassRepository.PatchAsync(flightClass);
-        }
-
-        public Task<FlightClass> AddClassMessageAsync(AddMessageRequest addMessageRequest, string resourceId)
-        {
-            return ClassRepository.AddMessageAsync(addMessageRequest, resourceId);
-        }
-
-        public Task<Google.Apis.Walletobjects.v1.Data.FlightObject> GetObjectAsync(string resourceId)
-        {
-            return ObjectRepository.GetAsync(resourceId);
-        }
-
-        public Task<Google.Apis.Walletobjects.v1.Data.FlightObject> InsertObjectAsync(Google.Apis.Walletobjects.v1.Data.FlightObject flightObject)
-        {
-            return ObjectRepository.InsertAsync(flightObject);
-        }
-
-        public Task<Google.Apis.Walletobjects.v1.Data.FlightObject> UpdateObjectAsync(Google.Apis.Walletobjects.v1.Data.FlightObject flightObject)
-        {
-            return ObjectRepository.UpdateAsync(flightObject);
-        }
-
-        public Task<Google.Apis.Walletobjects.v1.Data.FlightObject> PatchObjectAsync(Google.Apis.Walletobjects.v1.Data.FlightObject flightObject)
-        {
-            return ObjectRepository.PatchAsync(flightObject);
-        }
-
-        public Task<Google.Apis.Walletobjects.v1.Data.FlightObject> AddObjectMessageAsync(AddMessageRequest addMessageRequest, string resourceId)
-        {
-            return ObjectRepository.AddMessageAsync(addMessageRequest, resourceId);
-        }
-
-        public Task<Google.Apis.Walletobjects.v1.Data.FlightObject> ExpireObjectAsync(string resourceId)
-        {
-            return ObjectRepository.ExpireObjectAsync(resourceId);
-        }
-
-        public Task<Google.Apis.Walletobjects.v1.Data.FlightObject> UpdateObjectStateAsync(string resourceId, string objectState)
-        {
-            return ObjectRepository.UpdateObjectStateAsync(resourceId, objectState);
         }
     }
 }

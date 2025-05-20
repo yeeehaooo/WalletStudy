@@ -5,6 +5,9 @@ using WalletLibrary.GoogleWallet.Settings;
 
 namespace WalletLibrary.GoogleWallet.Context
 {
+    /// <summary>
+    /// Google Wallet 設定上下文，包含發卡者資訊與金鑰檔案等設定。
+    /// </summary>
     public class GoogleWalletContext : IGoogleWalletContext
     {
         public GoogleWalletSettings WalletSettings { get; private set; }
@@ -13,7 +16,11 @@ namespace WalletLibrary.GoogleWallet.Context
 
         public ServiceAccountCredential Credential { get; private set; }
 
-        public GoogleWalletContext(GoogleWalletSettings googlewalletSettings, WalletobjectsService walletobjectsService, ServiceAccountCredential credential)
+        public GoogleWalletContext(
+            GoogleWalletSettings googlewalletSettings,
+            WalletobjectsService walletobjectsService,
+            ServiceAccountCredential credential
+        )
         {
             WalletSettings = googlewalletSettings;
             WalletobjectsService = walletobjectsService;
