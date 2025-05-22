@@ -6,6 +6,14 @@ namespace WalletLibrary.GoogleWallet.WalletTypes.Flight.Models
     public class PassengerInfo
     {
         /// <summary>
+        /// 欄位: 01,渠道<br/>
+        /// 備註: 無<br/>
+        /// Amadeus: Channel<br/>
+        /// 長度: 10<br/>
+        /// </summary>
+        public string Channel { get; set; }
+
+        /// <summary>
         /// FlightClass ID 的後綴<br/>
         /// 每個航班的唯一ID<br/>
         /// </summary>
@@ -88,7 +96,7 @@ namespace WalletLibrary.GoogleWallet.WalletTypes.Flight.Models
         /// Amadeus: FQTVTierDescription<br/>
         /// 長度: 10<br/>
         /// </summary>
-        public LocalizedLanguageItem FQTVTierDescription { get; set; }
+        public string FQTVTierDescription { get; set; }
 
         /// <summary>
         /// 欄位: 24,華航會員卡號<br/>
@@ -131,6 +139,11 @@ namespace WalletLibrary.GoogleWallet.WalletTypes.Flight.Models
         public string ElecTicketNumber { get; set; }
 
         /// <summary>
+        /// QR Code Value
+        /// </summary>
+        public string BarCode { get; set; }
+
+        /// <summary>
         /// 欄位: 29,特別餐資訊<br/>
         /// 備註: 用[, ]組合, 例如: VOML, XXML<br/>
         /// Amadeus: SSR type="Table"<br/>
@@ -144,7 +157,7 @@ namespace WalletLibrary.GoogleWallet.WalletTypes.Flight.Models
         /// Amadeus: -<br/>
         /// 長度: <br/>
         /// </summary>
-        public TextModel BaggageInfo { get; set; }
+        public List<string> BaggagesValues { get; set; } = new List<string>();
 
         /// <summary>
         /// 欄位: 35,搭乘艙等名稱<br/>

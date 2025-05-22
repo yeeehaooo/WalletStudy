@@ -1,9 +1,17 @@
-﻿using Google.Apis.Walletobjects.v1.Data;
+﻿using System.Security.Cryptography.X509Certificates;
+using System.Threading.Channels;
+using System.Threading.Tasks;
+using Google.Apis.Walletobjects.v1.Data;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
 using WalletLibrary.DTO;
 using WalletLibrary.GoogleWallet.Base.Interfaces;
+using WalletLibrary.GoogleWallet.Models;
+using WalletLibrary.GoogleWallet.Models.Images;
+using WalletLibrary.GoogleWallet.Models.Languages;
 using WalletLibrary.GoogleWallet.Services.Interfaces;
 using WalletLibrary.GoogleWallet.Settings;
+using WalletLibrary.GoogleWallet.WalletTypes.Flight;
 using WalletLibrary.GoogleWallet.WalletTypes.Flight.Define;
 using WalletLibrary.GoogleWallet.WalletTypes.Flight.Models;
 using static WalletLibrary.GoogleWallet.WalletTypes.Flight.Define.FlightClassDefine;
@@ -36,138 +44,255 @@ namespace WalletLibrary.GoogleWallet.Services
         }
 
         /// <summary>
+        /// 建立範本<br/>
+        /// 根據航班唯一值,取得相關資訊<br/>
+        /// 呼叫 BuildFlightClass轉換,上傳Google Api<br/>
+        /// </summary>
+        /// <param name="classId"></param>
+        /// <param name="objectId"></param>
+        public async Task<string> CreateFlightAsync(string classId)
+        {
+            FlightInfo flight = new FlightInfo();
+            flight.ClassSuffix = classId;
+            // 航班資訊
+            var operating = new AirLineInfoModel();
+            operating.CarrierCode = "CI";
+            operating.FlightNumber = "9527";
+            operating.AirlineLogo = new ImageUriItem(
+                // 圖片鏈結
+                uri: "https://airhex.com/images/airline-logos/alt/china-airlines.png",
+                // 圖片描述
+                description: "Airline Logo",
+                // 多語系圖片描述
+                localizedDescription: null
+            );
+            operating.AirLineName = new LocalizedStringItem(
+                // 預設語系
+                defaultValue: new TranslatedStringItem("en-US", "China Airlines"),
+                // 其他語系
+                translatedValues: null
+            );
+            flight.Operating = operating;
+
+            // 時刻資訊
+            flight.DepartureDate = "2025/01/01";
+            flight.DepartureTime = "08:30";
+            flight.ArrivalDate = "2025/01/01";
+            flight.ArrivalTime = "12:30";
+            flight.BoardingDate = "2025/01/01";
+            flight.LatestBoardingTime = "08:00";
+
+            // 出發機場資訊
+            var departure = new AirportInfoModel();
+            departure.CityName = "Taipei";
+            departure.IATA = "TPE"; // 出發地機場的 IATA 三碼代碼
+            departure.Terminal = "6";
+            departure.Gate = "A1"; // 登機門號碼
+            departure.NameOverride = new LocalizedStringItem(
+                // 預設語系
+                defaultValue: new TranslatedStringItem("en-US", "Taipei Airport"),
+                // 其他語系
+                translatedValues: new List<TranslatedStringItem>
+                {
+                    new TranslatedStringItem("zh-TW", "桃園機場"),
+                }
+            );
+            flight.DepartureAirport = departure;
+            var arrival = new AirportInfoModel();
+            arrival.CityName = "Tokyo";
+            arrival.IATA = "NRT"; // 抵達地機場的 IATA 三碼代碼
+            arrival.Terminal = "2";
+            arrival.Gate = "B01"; // 登機門號碼
+            arrival.NameOverride = new LocalizedStringItem(
+                // 預設語系
+                defaultValue: new TranslatedStringItem("en-US", "Narita Airport"),
+                // 其他語系
+                translatedValues: new List<TranslatedStringItem>
+                {
+                    new TranslatedStringItem("zh-TW", "成田機場"),
+                }
+            );
+            flight.ArrivalAirport = arrival;
+
+            flight.AirportCheckinInfo = new UriItem(
+                uri: "http://AirportCheckinInfo.com",
+                description: "AirportCheckinInfo"
+            );
+            flight.BaggageMessageInfo = new UriItem(
+                uri: "http://BaggageMessageInfo.com",
+                description: "BaggageMessageInfo"
+            );
+            flight.OperatingCarrierName = new TextDataItem(
+                header: "Operating Carrier Name",
+                body: "Operated by China Airlines LTD."
+            );
+            flight.ReminderMessage = new TextDataItem(
+                header: "Reminder Message",
+                body: "Please arrive at the airport 2 hours before departure."
+            );
+
+            var flightClass = await InsertFlightInfoAsync(flight);
+            return flightClass.Id;
+        }
+
+        /// <summary>
+        /// 建立範本<br/>
+        /// 根據航班唯一值,根據旅客該航班唯一值,取得相關資訊<br/>
+        /// 呼叫 BuildFlightClass轉換,上傳Google Api<br/>
+        /// </summary>
+        /// <param name="classId"></param>
+        /// <param name="objectId"></param>
+        public async Task<string> CreatePassengerAsync(string classId, string objectId)
+        {
+            var passenger = new PassengerInfo();
+            passenger.Channel = "WEB";
+            passenger.ClassSuffix = classId;
+            passenger.ObjectSuffix = objectId;
+            passenger.Marketing = new AirLineInfoModel
+            {
+                CarrierCode = "JL",
+                FlightNumber = "5678",
+                AirlineLogo = new ImageUriItem(
+                    // 圖片鏈結
+                    uri: "https://airhex.com/images/airline-logos/alt/japan-airlines.png",
+                    // 圖片描述
+                    description: "Airline Logo",
+                    // 多語系圖片描述
+                    localizedDescription: null
+                ),
+                AirLineName = new LocalizedStringItem(
+                    // 預設語系
+                    defaultValue: new TranslatedStringItem("en-US", "Japan Airlines"),
+                    // 其他語系
+                    translatedValues: new List<TranslatedStringItem> { new("zh-TW", "日本航空") }
+                ),
+            };
+            passenger.PassengerName = "WANG HSIAOMING";
+            passenger.BoardingZone = "ZONE2";
+            passenger.BookingClass = "C";
+            passenger.SeatNumber = "5G";
+            passenger.SecurityNumber = "002";
+            passenger.FQTVTierDescription = "PARAGON";
+            passenger.FQTVNumber = "CT0000000";
+            passenger.IsSkyPriority = true;
+            passenger.TSAPreCheckIndicator = "TSA PRE";
+            passenger.IsTSAPreCheck = true;
+            passenger.AdditionalTextString = "LOUNGE-VLSF";
+            passenger.ConfirmationCode = "6LTO8V";
+            passenger.ElecTicketNumber = "297240203609001";
+            passenger.BarCode = "QrCode Test";
+            passenger.SpecialMealCode = "VOML, XXML";
+            passenger.BaggagesValues = new List<string> { "10A55300006CE42B", "10A55300006CE42C" };
+            passenger.CabinComments = "BUSINESS CLASS";
+            var flightObject = await InsertPassengerInfoAsync(passenger);
+            return flightObject.Id;
+        }
+
+        #region 私有方法 Request 物件轉換成 Google Api Flight 物件
+
+        /// <summary>
         /// 將 BoardingPassWalletModel 轉換為 Google Wallet 的 FlightClass 物件 範本<br/>
         /// 設定:<br/>
-        /// 1. ReviewStatus 狀態<br/>
-        /// 2. 背景底色模組<br/>
+        /// 1. ReviewStatus 審核狀態<br/>
+        /// 2. 背景底色<br/>
         /// 3. 主要圖片網址模組<br/>
-        /// 4. 連結模組<br/>
-        /// 5. 通知訊息模組<br/>
-        /// 6. 文字區塊模組<br/>
-        /// 7. 出發機場資訊<br/>
-        /// 8. 抵達機場資訊<br/>
-        /// 9. 預定出發時間 ISO 8601<br/>
-        /// 10. 預定抵達時間 ISO 8601<br/>
-        /// 11. 登機時間 ISO 8601<br/>
-        /// 12. 航班號碼<br/>
-        /// 13. 主承運航空公司資訊(IATA、Name、Logo等等)<br/>
+        /// 航班相關設定<br/>
+        /// 4. 出發機場資訊<br/>
+        /// 5. 抵達機場資訊<br/>
+        /// 航班時刻資訊（當地時間），格式必須符合 ISO 8601<br/>
+        /// 6. 預定出發時間<br/>
+        /// 7. 預定抵達時間<br/>
+        /// 8. 登機時間<br/>
+        /// 9. 航班資訊<br/>
+        /// 以下為客製(需額外維護多語系標題與內容)<br/>
+        /// 10. 文字區塊模組, 可以設定多組文字區塊(支援多語系 標題 & 內文), 非必填<br/>
+        /// 11. 連結模組, 可以設定多組連結, 非必填<br/>
+        /// 11-1. 機場與報到櫃台資訊(By語系) + Link<br/>
+        /// 11-2. 詳細行李資訊(By語系) + Link<br/>
+        /// 12. 通知訊息模組, 非必填<br/>
         /// </summary>
-        /// <param name="classId">航班物件ID, 必填 唯一值</param>
-        /// <param name="linksModuleData">連結模組</param>
-        /// <param name="messages">通知訊息模組</param>
-        /// <param name="textModuleDatas">文字區塊模組</param>
+        /// <param name="flightInfo"></param>
         /// <returns></returns>
-        private FlightClass BuildFlightClass(BoardingPassWalletModel boardingPassWallet)
+        private FlightClass BuildFlightClass(FlightInfo flightInfo)
         {
             FlightClass flightClass = new FlightClass();
 
-            flightClass.Id = $"{_settings.IssuerId}.{boardingPassWallet.Flight.ClassSuffix}";
+            flightClass.Id = $"{_settings.IssuerId}.{flightInfo.ClassSuffix}";
             flightClass.IssuerName = _settings.IssuerName;
 
             // 1. Note: ReviewStatus must be 'UNDER_REVIEW' or 'DRAFT'
             // 審核狀態（預設為 "UNDER_REVIEW"，若已申請 正式版 production 可改為 "APPROVED"）
             flightClass.ReviewStatus = ReviewStatus.UNDER_REVIEW;
 
-            // 2. 背景底色模組
+            // 2. 背景底色
             flightClass.HexBackgroundColor = _settings.HexBackgroundColor;
 
             // 3. 主要圖片網址模組
             flightClass.HeroImage =
-                FlightWalletUtility.BuildImageModule(
+                GoogleWalletUtility.CreateImageModule(
                     _settings.HeroImageId,
                     _settings.HeroImageUri,
                     _settings.HeroImageDescription
                 ) ?? null;
 
-            // 4. 連結模組
-            // 可以設定多組連結 ex 官網, 非必填
-            flightClass.LinksModuleData = new LinksModuleData
-            {
-                Uris = new List<GoogleApiUri>
-                {
-                    boardingPassWallet.Flight.AirportCheckinInfo?.ToUriModule("AirportCheckinInfo"),
-                    boardingPassWallet.Flight.BaggageLocalizedMessage?.ToUriModule(
-                        "BaggageLocalizedMessage"
-                    ),
-                },
-            };
-
-            // LocalizedItem  MessageModel放通知區塊ToMessage() 還是 TextModel放文字區塊ToTextModule()
-            var reminderInfo = boardingPassWallet.Flight.ReminderMessage.ToTextModule(
-                "ReminderMessage"
-            );
-            var reminderInfo2 = boardingPassWallet.Flight.ReminderMessage.ToTextModule(
-                "ReminderMessage2"
-            );
-            // 5. 通知訊息模組, 非必填
-            // 可以設定多組訊息(支援多語系 標題 & 內文)
-            // 可以額外設定 起始時間 & 結束時間 & 通知類型
-            flightClass.Messages = new List<Message> { };
-            // 6. 文字區塊模組, 非必填
-            // 可以設定多組文字區塊(支援多語系 標題 & 內文)
-            flightClass.TextModulesData = new List<TextModuleData>();
-            flightClass.TextModulesData.Add(reminderInfo);
-            flightClass.TextModulesData.Add(reminderInfo2);
             // 航班相關設定
-            // 7. 出發機場資訊
+            // 4. 出發機場資訊
             flightClass.Origin = new AirportInfo();
-            flightClass.Origin.AirportIataCode = boardingPassWallet.Flight.DepartureAirport.IATA; // 出發地機場的 IATA 三碼代碼
-            flightClass.Origin.Terminal = boardingPassWallet.Flight.DepartureAirport.Terminal; // 出發航廈編號（例如：T1、T2）
-            flightClass.Origin.Gate = boardingPassWallet.Flight.DepartureAirport.Gate; // 登機門號碼
+            flightClass.Origin.AirportIataCode = flightInfo.DepartureAirport.IATA; // 出發地機場的 IATA 三碼代碼
+            flightClass.Origin.Terminal = flightInfo.DepartureAirport.Terminal; // 出發航廈編號（例如：T1、T2）
+            flightClass.Origin.Gate = flightInfo.DepartureAirport.Gate; // 登機門號碼
             flightClass.Origin.AirportNameOverride =
-                boardingPassWallet.Flight.DepartureAirport.NameOverride?.ToLocalizedString(); // 出發機場名稱複寫 可以設定多語系
+                flightInfo.DepartureAirport.NameOverride?.ToLocalizedString(); // 出發機場名稱複寫 可以設定多語系
 
-            // 8. 抵達機場資訊
+            // 5. 抵達機場資訊
             flightClass.Destination = new AirportInfo();
-            flightClass.Destination.AirportIataCode = boardingPassWallet.Flight.ArrivalAirport.IATA; // 抵達地機場的 IATA 三碼代碼
-            flightClass.Destination.Terminal = boardingPassWallet.Flight.ArrivalAirport.Terminal; // 抵達航廈編號
-            flightClass.Destination.Gate = boardingPassWallet.Flight.ArrivalAirport.Gate; // 抵達登機門號碼
+            flightClass.Destination.AirportIataCode = flightInfo.ArrivalAirport.IATA; // 抵達地機場的 IATA 三碼代碼
+            flightClass.Destination.Terminal = flightInfo.ArrivalAirport.Terminal; // 抵達航廈編號
+            flightClass.Destination.Gate = flightInfo.ArrivalAirport.Gate; // 抵達登機門號碼
             flightClass.Destination.AirportNameOverride =
-                boardingPassWallet.Flight.ArrivalAirport.NameOverride?.ToLocalizedString(); // 抵達機場名稱複寫 可以設定多語系
+                flightInfo.ArrivalAirport.NameOverride?.ToLocalizedString(); // 抵達機場名稱複寫 可以設定多語系
 
             // 航班時刻資訊（當地時間），格式必須符合 ISO 8601
-            // 9. 預定出發時間 ISO 8601
+            // 6. 預定出發時間 ISO 8601
             flightClass.LocalScheduledDepartureDateTime =
-                FlightWalletUtility.FormatToIso8601DateTimeString(
-                    boardingPassWallet.Flight.DepartureDate,
-                    boardingPassWallet.Flight.DepartureTime
+                GoogleWalletUtility.FormatToIso8601DateTimeString(
+                    flightInfo.DepartureDate,
+                    flightInfo.DepartureTime
                 );
-            // 10. 預定抵達時間 ISO 8601
+            // 7. 預定抵達時間 ISO 8601
             flightClass.LocalScheduledArrivalDateTime =
-                FlightWalletUtility.FormatToIso8601DateTimeString(
-                    boardingPassWallet.Flight.ArrivalDate,
-                    boardingPassWallet.Flight.ArrivalTime
+                GoogleWalletUtility.FormatToIso8601DateTimeString(
+                    flightInfo.ArrivalDate,
+                    flightInfo.ArrivalTime
                 );
-            // 11.登機時間 ISO 8601
-            flightClass.LocalBoardingDateTime = FlightWalletUtility.FormatToIso8601DateTimeString(
-                boardingPassWallet.Flight.BoardingDate,
-                boardingPassWallet.Flight.LatestBoardingTime
+            // 8. 登機時間 ISO 8601
+            flightClass.LocalBoardingDateTime = GoogleWalletUtility.FormatToIso8601DateTimeString(
+                flightInfo.BoardingDate,
+                flightInfo.LatestBoardingTime
             );
 
+            // 9. 航班資訊
             flightClass.FlightHeader = new FlightHeader
             {
-                // 12. 航班號碼
-                FlightNumber = boardingPassWallet.Flight.Operating.FlightNumber, // 航班號碼（數字）
-                FlightNumberDisplayOverride = FlightWalletUtility.FormatFlightNumber(
-                    boardingPassWallet.Flight.Operating.CarrierCode,
-                    boardingPassWallet.Flight.Operating.FlightNumber
-                ), // 顯示用航班號碼（可能包含航空公司代碼）
+                // 航班號碼（數字）
+                FlightNumber = flightInfo.Operating.FlightNumber,
+                // 顯示用航班號碼（可能包含航空公司代碼）
+                FlightNumberDisplayOverride = GoogleWalletUtility.FormatFlightNumber(
+                    flightInfo.Operating.CarrierCode,
+                    flightInfo.Operating.FlightNumber
+                ),
 
-                // 13. 主承運航空公司資訊
+                // 主承運航空公司資訊
                 Carrier = new FlightCarrier
                 {
-                    CarrierIataCode = boardingPassWallet.Flight.Operating.CarrierCode, // 航空公司 IATA 簡碼
-                    //CarrierIcaoCode = "航空公司 ICAO 簡碼", // 航空公司 ICAO 簡碼
+                    // 航空公司 IATA 簡碼
+                    CarrierIataCode = flightInfo.Operating.CarrierCode,
+                    // 航空公司 ICAO 簡碼
+                    //CarrierIcaoCode = "航空公司 ICAO 簡碼",
                     // 航空公司名稱
-                    AirlineName = new LocalizedString
-                    {
-                        DefaultValue =
-                            boardingPassWallet.Flight.Operating.AirLineName.Default.ToDefaultValue(),
-                        TranslatedValues =
-                            boardingPassWallet.Flight.Operating.AirLineName.TranslatedValues?.ToTranslatedValues(),
-                    },
+                    AirlineName = flightInfo.Operating.AirLineName.ToLocalizedString(),
                     // 航空公司 Logo
-                    AirlineLogo = boardingPassWallet.Flight.Operating.AirlineLogo?.ToImageModule(
+                    AirlineLogo = flightInfo.Operating.AirlineLogo?.ToImageModule(
                         "OperatingAirlineLogo"
                     ),
                     //// 航空公司 寬版Logo
@@ -178,334 +303,70 @@ namespace WalletLibrary.GoogleWallet.Services
                     //    boardingPassWallet.Flight.Operating.AirlineAllianceLogo?.ToImageModule(),
                 },
             };
-            flightClass.ClassTemplateInfo = CreateFlightCardTemplate();
+
+            // 以下為客製(需額外維護多語系標題與內容)
+            // 10. 文字區塊模組,可以設定多組文字區塊(支援多語系 標題 & 內文), 非必填
+            flightClass.TextModulesData = new List<TextModuleData>
+            {
+                flightInfo.ReminderMessage.ToTextModule(
+                    CardTemplateFields.ReminderMessage.FieldName
+                ),
+            };
+
+            // 11. 連結模組, 可以設定多組連結, 非必填
+            //
+            flightClass.LinksModuleData = new LinksModuleData
+            {
+                Uris = new List<GoogleApiUri>
+                {
+                    // 11-1. 機場與報到櫃台資訊(By語系) + Link
+                    flightInfo.AirportCheckinInfo?.ToUriModule(
+                        CardTemplateFields.AirportCheckinInfo.FieldName
+                    ),
+                    // 11-2. 詳細行李資訊(By語系) + Link
+                    flightInfo.BaggageMessageInfo?.ToUriModule(
+                        CardTemplateFields.BaggageInfo.FieldName
+                    ),
+                },
+            };
+
+            // 12. 通知訊息模組, 非必填
+            // 可以設定多組訊息(支援多語系 標題 & 內文)
+            // 可以額外設定 起始時間 & 結束時間 & 通知類型
+            flightClass.Messages = new List<Message> { };
+
+            // 預設範本(有override 會清空預設排版)
+            flightClass.ClassTemplateInfo = CardTemplateFields.CI_TemplateInfo();
 
             return flightClass;
-        }
-
-        public ClassTemplateInfo CreateFlightCardTemplate()
-        {
-            var classTemplateInfo = new ClassTemplateInfo();
-
-            classTemplateInfo.CardTemplateOverride = new CardTemplateOverride
-            {
-                CardRowTemplateInfos = new List<CardRowTemplateInfo>
-                {
-                    // 第一列：（1. 出發時間、航廈，2. 抵達時間、抵達航廈）
-                    new CardRowTemplateInfo
-                    {
-                        TwoItems = new CardRowTwoItems
-                        {
-                            StartItem = new TemplateItem
-                            {
-                                FirstValue = new FieldSelector
-                                {
-                                    Fields = new List<FieldReference>
-                                    {
-                                        new FieldReference
-                                        {
-                                            FieldPath = "class.localScheduledDepartureDateTime",
-                                            DateFormat = "TIME_ONLY",
-                                        }, //
-                                    },
-                                },
-                                SecondValue = new FieldSelector
-                                {
-                                    Fields = new List<FieldReference>
-                                    {
-                                        new FieldReference { FieldPath = "class.origin.terminal" }, // 出發航廈
-                                    },
-                                },
-                            },
-                            EndItem = new TemplateItem
-                            {
-                                FirstValue = new FieldSelector
-                                {
-                                    Fields = new List<FieldReference>
-                                    {
-                                        new FieldReference
-                                        {
-                                            FieldPath = "class.localScheduledArrivalDateTime",
-                                            DateFormat = "TIME_ONLY",
-                                        },
-                                    },
-                                },
-                                SecondValue = new FieldSelector
-                                {
-                                    Fields = new List<FieldReference>
-                                    {
-                                        new FieldReference
-                                        {
-                                            FieldPath = "class.destination.terminal",
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                    //// 第二列
-                    new CardRowTemplateInfo
-                    {
-                        ThreeItems = new CardRowThreeItems
-                        {
-                            StartItem = new TemplateItem
-                            {
-                                FirstValue = new FieldSelector
-                                {
-                                    Fields = new List<FieldReference>
-                                    {
-                                        new FieldReference
-                                        {
-                                            FieldPath = "class.localBoardingDateTime",
-                                            DateFormat = "TIME_ONLY",
-                                        }, // 登機時間
-                                    },
-                                },
-                            },
-                            MiddleItem = new TemplateItem
-                            {
-                                FirstValue = new FieldSelector
-                                {
-                                    Fields = new List<FieldReference>
-                                    {
-                                        new FieldReference { FieldPath = "class.origin.gate" }, // 出發登機門
-                                    },
-                                },
-                            },
-                            EndItem = new TemplateItem
-                            {
-                                FirstValue = new FieldSelector
-                                {
-                                    Fields = new List<FieldReference>
-                                    {
-                                        new FieldReference
-                                        {
-                                            FieldPath =
-                                                "object.boardingAndSeatingInfo.boardingGroup",
-                                        }, // 登機順序 ()
-                                    },
-                                },
-                                SecondValue = new FieldSelector
-                                {
-                                    Fields = new List<FieldReference>
-                                    {
-                                        new FieldReference
-                                        {
-                                            FieldPath = "object.boardingAndSeatingInfo.seatNumber",
-                                        }, // 座位 / 區域 (object)
-                                    },
-                                },
-                            },
-                        },
-                    },
-                    // 第三列：
-                    new CardRowTemplateInfo
-                    {
-                        TwoItems = new CardRowTwoItems
-                        {
-                            StartItem = new TemplateItem
-                            {
-                                FirstValue = new FieldSelector
-                                {
-                                    Fields = new List<FieldReference>
-                                    {
-                                        new FieldReference { FieldPath = "object.passengerName" }, // 乘客姓名
-                                    },
-                                },
-                            },
-                            EndItem = new TemplateItem
-                            {
-                                FirstValue = new FieldSelector
-                                {
-                                    Fields = new List<FieldReference>
-                                    {
-                                        new FieldReference
-                                        {
-                                            FieldPath = "object.textModulesData['CodeShare']",
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                },
-            };
-            //return classTemplateInfo;
-            classTemplateInfo.DetailsTemplateOverride = new DetailsTemplateOverride
-            {
-                DetailsItemInfos = new List<DetailsItemInfo>
-                {
-                    new DetailsItemInfo
-                    {
-                        Item = new TemplateItem
-                        {
-                            FirstValue = new FieldSelector
-                            {
-                                Fields = new List<FieldReference>
-                                {
-                                    new FieldReference
-                                    {
-                                        FieldPath =
-                                            "class.linksModuleData.uris['AirportCheckinInfo']",
-                                    },
-                                },
-                            },
-                        },
-                    },
-                    new DetailsItemInfo
-                    {
-                        Item = new TemplateItem
-                        {
-                            FirstValue = new FieldSelector
-                            {
-                                Fields = new List<FieldReference>
-                                {
-                                    new FieldReference
-                                    {
-                                        FieldPath =
-                                            "class.linksModuleData.uris['BaggageLocalizedMessage']",
-                                    },
-                                },
-                            },
-                        },
-                    },
-                    new DetailsItemInfo
-                    {
-                        Item = new TemplateItem
-                        {
-                            PredefinedItem = "frequentFlyerProgramNameAndNumber",
-                        },
-                    },
-                    new DetailsItemInfo
-                    {
-                        Item = new TemplateItem
-                        {
-                            FirstValue = new FieldSelector
-                            {
-                                Fields = new List<FieldReference>
-                                {
-                                    new FieldReference
-                                    {
-                                        FieldPath = "object.reservationInfo.eticketNumber",
-                                    },
-                                },
-                            },
-                        },
-                    },
-                    new DetailsItemInfo
-                    {
-                        Item = new TemplateItem
-                        {
-                            FirstValue = new FieldSelector
-                            {
-                                Fields = new List<FieldReference>
-                                {
-                                    new FieldReference
-                                    {
-                                        FieldPath = "object.reservationInfo.confirmationCode",
-                                    },
-                                },
-                            },
-                        },
-                    },
-                    new DetailsItemInfo
-                    {
-                        Item = new TemplateItem
-                        {
-                            FirstValue = new FieldSelector
-                            {
-                                Fields = new List<FieldReference>
-                                {
-                                    new FieldReference
-                                    {
-                                        FieldPath = "object.textModulesData['BaggageInfo']",
-                                    },
-                                },
-                            },
-                        },
-                    },
-                    new DetailsItemInfo
-                    {
-                        Item = new TemplateItem
-                        {
-                            FirstValue = new FieldSelector
-                            {
-                                Fields = new List<FieldReference>
-                                {
-                                    new FieldReference
-                                    {
-                                        FieldPath = "object.textModulesData['CodeShare']",
-                                    },
-                                },
-                            },
-                        },
-                    },
-                },
-            };
-
-            //classTemplateInfo.CardBarcodeSectionDetails = new CardBarcodeSectionDetails
-            //{
-            //    FirstTopDetail = new BarcodeSectionDetail
-            //    {
-            //        FieldSelector = new FieldSelector
-            //        {
-            //            Fields = new List<FieldReference>
-            //            {
-            //                new FieldReference { FieldPath = "" },
-            //                new FieldReference { FieldPath = "" },
-            //            },
-            //        },
-            //    },
-            //    SecondTopDetail = new BarcodeSectionDetail
-            //    {
-            //        FieldSelector = new FieldSelector
-            //        {
-            //            Fields = new List<FieldReference>
-            //            {
-            //                new FieldReference { FieldPath = "" },
-            //                new FieldReference { FieldPath = "" },
-            //            },
-            //        },
-            //    },
-            //    FirstBottomDetail = new BarcodeSectionDetail
-            //    {
-            //        FieldSelector = new FieldSelector
-            //        {
-            //            Fields = new List<FieldReference>
-            //            {
-            //                new FieldReference { FieldPath = "" },
-            //                new FieldReference { FieldPath = "" },
-            //            },
-            //        },
-            //    },
-            //};
-            return classTemplateInfo;
         }
 
         /// <summary>
         /// 建立 Google Wallet 的 FlightObject 物件（搭配 FlightClass）<br/>
         /// 設定：<br/>
         /// 1. Class ID 與 Object ID<br/>
-        /// 2. 使用者資訊（姓名）<br/>
+        /// 2. 姓名<br/>
         /// 3. 座位資訊（座位號碼、艙等）<br/>
-        /// 4. 條碼資訊（登機證用）<br/>
-        /// 5. 登機群組、登機區域資訊<br/>
-        /// 6. 中央航線標籤（例如：TPE ✈ NRT）<br/>
+        /// 4. 條碼資訊<br/>
+        /// 5. ReservationInfo(確認代碼,機票號碼,常客資訊)<br/>
+        /// 以下為客製<br/>
+        /// 6. Customer TextModulesData<br/>
+        /// 7. Customer LinksModulesData<br/>
         /// </summary>
         /// <param name="boardingPassWallet">登機證模型</param>
         /// <returns></returns>
-        public FlightObject BuildFlightObject(BoardingPassWalletModel boardingPassWallet)
+        private FlightObject BuildFlightObject(PassengerInfo passengerInfo)
         {
-            var objectId = $"{_settings.IssuerId}.{boardingPassWallet.Passenger.ObjectSuffix}";
+            var objectId = $"{_settings.IssuerId}.{passengerInfo.ObjectSuffix}";
 
             var flightObject = new FlightObject
             {
                 // 1. Class ID 與 Object ID
                 Id = objectId,
-                ClassId = $"{_settings.IssuerId}.{boardingPassWallet.Passenger.ClassSuffix}",
+                ClassId = $"{_settings.IssuerId}.{passengerInfo.ClassSuffix}",
                 State = FlightObjectDefine.State.ACTIVE, // ACTIVE, INACTIVE, EXPIRED, etc.
-                // 2. 使用者資訊（姓名）
-                PassengerName = boardingPassWallet.Passenger.PassengerName,
+                // 2. 姓名
+                PassengerName = passengerInfo.PassengerName,
                 // 3. 座位資訊（座位號碼、艙等）
                 BoardingAndSeatingInfo = new BoardingAndSeatingInfo
                 {
@@ -515,7 +376,7 @@ namespace WalletLibrary.GoogleWallet.Services
 
                     // 登機分組 (BoardingGroup)
                     // 通常代表旅客的登機分組（如 Zone1, Zone2）
-                    BoardingGroup = boardingPassWallet.Passenger.BoardingZone,
+                    BoardingGroup = passengerInfo.BoardingZone,
 
                     // 登機順序編號 (BoardingPosition)
                     // 一般指示旅客的登機優先順序編號
@@ -523,31 +384,31 @@ namespace WalletLibrary.GoogleWallet.Services
 
                     // 序號 (SequenceNumber)
                     // 旅客的報到序號，通常格式如 "SEQ:002"
-                    SequenceNumber = boardingPassWallet.Passenger.SecurityNumber,
+                    SequenceNumber = passengerInfo.SecurityNumber,
 
                     // 座艙等級 (SeatClass)
                     // 例如：BUSINESS CLASS、ECONOMY 等
-                    SeatClass = boardingPassWallet.Passenger.BookingClass,
+                    SeatClass = passengerInfo.BookingClass,
 
                     // 座位號碼 (SeatNumber)
                     // 例如 5G、12A 等
-                    SeatNumber = boardingPassWallet.Passenger.SeatNumber,
+                    SeatNumber = passengerInfo.SeatNumber,
 
                     // 特殊登機權益圖像 (BoardingPrivilegeImage)
                     // 根據 FQTVAllianceTier 字串決定是否顯示特權圖標
                     // 注意：這裡 boardingPassWallet.Passenger.FQTVAllianceTier 應為圖片 URL
-                    BoardingPrivilegeImage = !boardingPassWallet.Passenger.IsSkyPriority
+                    BoardingPrivilegeImage = !passengerInfo.IsSkyPriority
                         ? null
-                        : FlightWalletUtility.BuildImageModule(
-                            "SkyPriority",
+                        : GoogleWalletUtility.CreateImageModule(
+                            CardTemplateFields.PrivilegeImage.FieldName,
                             _settings.BoardingPrivilegeImage,
                             "SKY PRIORITY"
                         ),
                 },
-                SecurityProgramLogo = !boardingPassWallet.Passenger.IsTSAPreCheck
+                SecurityProgramLogo = !passengerInfo.IsTSAPreCheck
                     ? null
-                    : FlightWalletUtility.BuildImageModule(
-                        "TSAPreCheck",
+                    : GoogleWalletUtility.CreateImageModule(
+                        CardTemplateFields.SecurityProgramLogo.FieldName,
                         _settings.SecurityProgramLogo,
                         "TSA PRE"
                     ),
@@ -555,62 +416,96 @@ namespace WalletLibrary.GoogleWallet.Services
                 Barcode = new Barcode
                 {
                     Type = "QR_CODE",
-                    Value = boardingPassWallet.Passenger.ElecTicketNumber, // Barcode Value 未定義
-                    AlternateText = boardingPassWallet.Channel,
+                    Value = passengerInfo.BarCode,
+                    AlternateText = passengerInfo.Channel,
                     RenderEncoding = "UTF-8",
-                    ShowCodeText = new LocalizedString
-                    {
-                        DefaultValue = new TranslatedString
-                        {
-                            Language = "zh-TW",
-                            Value = "點擊以顯示QR CODE",
-                        },
-                        TranslatedValues = new List<TranslatedString>
-                        {
-                            new TranslatedString
-                            {
-                                Language = "en-US",
-                                Value = "Click to Show QR CODE",
-                            },
-                        },
-                    },
+                    //ShowCodeText = new LocalizedString
+                    //{
+                    //    DefaultValue = new TranslatedString
+                    //    {
+                    //        Language = "zh-TW",
+                    //        Value = "點擊以顯示QR CODE",
+                    //    },
+                    //    TranslatedValues = new List<TranslatedString>
+                    //    {
+                    //        new TranslatedString
+                    //        {
+                    //            Language = "en-US",
+                    //            Value = "Click to Show QR CODE",
+                    //        },
+                    //    },
+                    //},
                 },
-
+                // 5.
                 ReservationInfo = new ReservationInfo
                 {
-                    ConfirmationCode = boardingPassWallet.Passenger.ConfirmationCode,
-                    EticketNumber = boardingPassWallet.Passenger.ElecTicketNumber,
+                    ConfirmationCode = passengerInfo.ConfirmationCode,
+                    EticketNumber = passengerInfo.ElecTicketNumber,
                     FrequentFlyerInfo = new FrequentFlyerInfo
                     {
-                        FrequentFlyerProgramName =
-                            boardingPassWallet.Passenger.FQTVTierDescription.ToLocalizedString(),
-                        FrequentFlyerNumber = boardingPassWallet.Passenger.FQTVNumber,
+                        FrequentFlyerProgramName = GoogleWalletUtility.CreateLocalizedString(
+                            "en-US",
+                            passengerInfo.FQTVTierDescription
+                        ),
+                        FrequentFlyerNumber = passengerInfo.FQTVNumber,
                     },
                 },
+                // 6. Customer TextModulesData
                 TextModulesData = new List<TextModuleData>
                 {
-                    boardingPassWallet.Passenger.BaggageInfo.ToTextModule("BaggageInfo"),
-                    //boardingPassWallet.Passenger.BaggageInfo.ToTextModule("CodeShare"),
-                    FlightWalletUtility.ToDefaultTextModuleData(
-                        "CodeShare",
-                        "Code Share Info",
-                        string.Join(
-                            Environment.NewLine,
-                            new List<string>
-                            {
-                                $"{FlightWalletUtility.FormatFlightNumber(boardingPassWallet.Flight.Operating.CarrierCode, boardingPassWallet.Flight.Operating.FlightNumber)}．{boardingPassWallet.Flight.BoardingDate}．{boardingPassWallet.Passenger.CabinComments}",
-                                $"CODE SHARE {FlightWalletUtility.FormatFlightNumber(boardingPassWallet.Passenger.Marketing.CarrierCode, boardingPassWallet.Passenger.Marketing.FlightNumber)}",
-                            }
+                    //需要多語系要額外設定標題與內容
+                    GoogleWalletUtility.CreateTextModuleData(
+                        CardTemplateFields.BaggagesValues.FieldName,
+                        "Baggage Info",
+                        string.Join(Environment.NewLine, passengerInfo.BaggagesValues)
+                    ),
+                    GoogleWalletUtility.CreateTextModuleData(
+                        CardTemplateFields.CodeShare.FieldName,
+                        "Code Share",
+                        GoogleWalletUtility.FormatFlightNumber(
+                            passengerInfo.Marketing.CarrierCode,
+                            passengerInfo.Marketing.FlightNumber
                         )
                     ),
-                    ////
-                    //),
+                    GoogleWalletUtility.CreateTextModuleData(
+                        CardTemplateFields.CabinClass.FieldName,
+                        "Cabin Comments",
+                        passengerInfo.CabinComments
+                    ),
+                    GoogleWalletUtility.CreateTextModuleData(
+                        CardTemplateFields.SpecialMealCode.FieldName,
+                        "Special Meal",
+                        passengerInfo.SpecialMealCode
+                    ),
+                    GoogleWalletUtility.CreateTextModuleData(
+                        CardTemplateFields.AdditionalTextString.FieldName,
+                        "Additional Text String",
+                        passengerInfo.AdditionalTextString
+                    ),
                 },
+                // 7. Customer LinksModulesData
+                LinksModuleData = null,
             };
             return flightObject;
         }
 
-        #region JWT
+        #endregion
+
+        #region 上傳 Google
+        public async Task<FlightClass> InsertFlightInfoAsync(FlightInfo flightInfo)
+        {
+            var flightClass = BuildFlightClass(flightInfo);
+            return await InsertClassAsync(flightClass);
+        }
+
+        public async Task<FlightObject> InsertPassengerInfoAsync(PassengerInfo passengerInfo)
+        {
+            var flightObject = BuildFlightObject(passengerInfo);
+            return await InsertObjectAsync(flightObject);
+        }
+        #endregion
+
+        #region 產生 JWT 鏈接
         public async Task<string> GetJwtToken(string flightClassId, string flightObjectId)
         {
             return await _googleWalletHandler.FlightWallet.GetJwtToken(
@@ -641,12 +536,6 @@ namespace WalletLibrary.GoogleWallet.Services
         public async Task<FlightClass> GetClassByResourceIdAsync(string resourceId)
         {
             return await _googleWalletHandler.FlightWallet.ClassRepository.GetAsync(resourceId);
-        }
-
-        public async Task<FlightClass> InsertClassAsync(BoardingPassWalletModel boardingPassModel)
-        {
-            var flightClass = BuildFlightClass(boardingPassModel);
-            return await InsertClassAsync(flightClass);
         }
 
         public async Task<FlightClass> InsertClassAsync(FlightClass flightClass)
@@ -687,12 +576,6 @@ namespace WalletLibrary.GoogleWallet.Services
         public async Task<FlightObject> GetObjectByResourceIdAsync(string resourceId)
         {
             return await _googleWalletHandler.FlightWallet.ObjectRepository.GetAsync(resourceId);
-        }
-
-        public async Task<FlightObject> InsertObjectAsync(BoardingPassWalletModel boardingPassModel)
-        {
-            var flightObject = BuildFlightObject(boardingPassModel);
-            return await InsertObjectAsync(flightObject);
         }
 
         public async Task<FlightObject> InsertObjectAsync(FlightObject flightObject)

@@ -1,4 +1,5 @@
-﻿using Google.Apis.Walletobjects.v1.Data;
+﻿using System.Security.Cryptography;
+using Google.Apis.Walletobjects.v1.Data;
 using Microsoft.AspNetCore.Mvc;
 using WalletLibrary.Base.Define;
 using WalletLibrary.GoogleWallet.Base.Interfaces;
@@ -27,23 +28,6 @@ namespace GoogleWalletApi.Controllers
             MandarinAirlinesHandler = mandarinAirlinesHandler;
         }
 
-        [HttpPost("CreateClass")]
-        public async Task<IActionResult> CreateClass(BoardingPassWalletModel boardingPass)
-        {
-            return Ok(await ChinaairLinesService.InsertClassAsync(boardingPass));
-        }
-
-        //[HttpPost("PatchClass")]
-        //public async Task<IActionResult> PatchClass(string classId)
-        //{
-        //    var result = await ChinaairLinesService.GetClassByClassIdAsync(classId);
-        //    var flightClass = result?.Data;
-
-        //    flightClass.ClassTemplateInfo = null; // ChinaairLinesService.CreateFlightCardTemplate();
-
-        //    return Ok(await ChinaairLinesService.PatchClassAsync(flightClass));
-        //}
-
         [HttpPost("PatchOjbectIdtoClassId")]
         public async Task<IActionResult> PatchOjbectIdtoClassId(string? classId, string? objectId)
         {
@@ -57,20 +41,24 @@ namespace GoogleWalletApi.Controllers
             return Ok(await ChinaairLinesService.PatchObjectAsync(flightObject));
         }
 
-        [HttpPost("CreateObject")]
-        public async Task<IActionResult> CreateObject(BoardingPassWalletModel boardingPass)
+        [HttpPost("CreateFlight")]
+        public async Task<IActionResult> CreateFlight(string? classId, string? objectId)
         {
-            return Ok(await ChinaairLinesService.InsertObjectAsync(boardingPass));
+            var cId =
+                $"C{System.DateTime.Now.Date.ToString("yyyyMMdd")}{(string.IsNullOrEmpty(classId) ? "" : $"_{classId}")}";
+
+            return Ok(ChinaairLinesService.CreateFlightAsync(cId));
         }
 
-        [HttpPost("PatchObject")]
-        public async Task<IActionResult> PatchClass(BoardingPassWalletModel boardingPass)
+        [HttpPost("CreatePassenger")]
+        public async Task<IActionResult> CreatePassenger(string? classId, string? objectId)
         {
-            return Ok(
-                await ChinaairLinesService.PatchObjectAsync(
-                    ChinaairLinesService.BuildFlightObject(boardingPass)
-                )
-            );
+            var cId =
+                $"C{System.DateTime.Now.Date.ToString("yyyyMMdd")}{(string.IsNullOrEmpty(classId) ? "" : $"_{classId}")}";
+            var oId =
+                $"P{System.DateTime.Now.Date.ToString("yyyyMMdd")}{(string.IsNullOrEmpty(objectId) ? "" : $"_{objectId}")}";
+            ;
+            return Ok(ChinaairLinesService.CreatePassengerAsync(cId, oId));
         }
 
         [HttpPost("GetJWT")]
@@ -87,18 +75,6 @@ namespace GoogleWalletApi.Controllers
                     $"P{System.DateTime.Now.Date.ToString("yyyyMMdd")}{(string.IsNullOrEmpty(objectId) ? "" : $"_{objectId}")}"
                 )
             );
-        }
-
-        [HttpPost("GetClass")]
-        public async Task<IActionResult> GetClass(string classId)
-        {
-            return Ok(await ChinaairLinesService.GetClassByClassIdAsync(classId));
-        }
-
-        [HttpPost("GetObject")]
-        public async Task<IActionResult> GetObject(string objectId)
-        {
-            return Ok(await ChinaairLinesService.GetObjectByObjectIdAsync(objectId));
         }
     }
 }

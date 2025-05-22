@@ -1,4 +1,4 @@
-﻿using WalletLibrary.GoogleWallet.Models;
+﻿using WalletLibrary.GoogleWallet.Models.Images;
 using WalletLibrary.GoogleWallet.Models.Languages;
 
 namespace WalletLibrary.GoogleWallet.WalletTypes.Flight.Models
@@ -22,12 +22,12 @@ namespace WalletLibrary.GoogleWallet.WalletTypes.Flight.Models
         /// <summary>
         /// 航空公司 Name
         /// </summary>
-        public LocalizedLanguageItem AirLineName { get; set; }
+        public LocalizedStringItem AirLineName { get; set; }
 
         /// <summary>
         /// 航空公司 Logo Uri & Description
         /// </summary>
-        public ImageModel? AirlineLogo { get; set; }
+        public ImageUriItem? AirlineLogo { get; set; }
 
         ///// <summary>
         ///// 航空公司 Wide Logo Uri & Description

@@ -32,6 +32,6 @@ namespace WalletLibrary.GoogleWallet.WalletTypes.Flight.Models
         /// <summary>
         /// 機場名稱 複寫
         /// </summary>
-        public LocalizedLanguageItem? NameOverride { get; set; }
+        public LocalizedStringItem? NameOverride { get; set; }
     }
 }

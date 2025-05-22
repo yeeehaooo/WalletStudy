@@ -7,7 +7,23 @@ namespace WalletLibrary.GoogleWallet.Services.Interfaces
     {
         public Task<string> GetJwtToken(string flightClassId, string flightObjectId);
         public Task<string> GetJwtToken(string flightObjectId);
-        public FlightObject BuildFlightObject(BoardingPassWalletModel boardingPassWallet);
+
+        public Task<string> CreateFlightAsync(string classId);
+        public Task<string> CreatePassengerAsync(string classId, string objectId);
+
+        /// <summary>
+        /// 新增 FlightClass 資源物件。
+        /// </summary>
+        /// <param name="flightInfo">要新增的航班資訊。</param>
+        /// <returns>返回新增的 FlightClass 資源物件。</returns>
+        public Task<FlightClass> InsertFlightInfoAsync(FlightInfo flightInfo);
+
+        /// <summary>
+        /// 新增 FlightClass 資源物件。
+        /// </summary>
+        /// <param name="passengerInfo">要新增的航班旅客資訊。</param>
+        /// <returns>返回新增的 FlightClass 資源物件。</returns>
+        public Task<FlightObject> InsertPassengerInfoAsync(PassengerInfo passengerInfo);
 
         #region 操作 Class Resource
         /// <summary>
@@ -23,15 +39,6 @@ namespace WalletLibrary.GoogleWallet.Services.Interfaces
         /// <param name="resourceId">格式為 "{IssuerId}.{classSuffix}"。</param>
         /// <returns>返回獲取的 FlightClass 資源物件。</returns>
         public Task<FlightClass> GetClassByResourceIdAsync(string resourceId);
-
-        /// <summary>
-        /// 新增 FlightClass 資源物件。
-        /// </summary>
-        /// <param name="boardingPassModel">要新增的 登機證錢包 物件。</param>
-        /// <returns>返回新增的 FlightClass 資源物件。</returns>
-        public Task<FlightClass> InsertClassAsync(BoardingPassWalletModel boardingPassModel);
-
-        public ClassTemplateInfo CreateFlightCardTemplate();
 
         /// <summary>
         /// 新增 FlightClass 資源物件。
@@ -80,13 +87,6 @@ namespace WalletLibrary.GoogleWallet.Services.Interfaces
         /// <param name="resourceId">格式為 "{IssuerId}.{objectSuffix}"。</param>
         /// <returns>返回獲取的 FlightObject 資源物件。</returns>
         public Task<FlightObject> GetObjectByResourceIdAsync(string resourceId);
-
-        /// <summary>
-        /// 新增 FlightObject 資源物件。
-        /// </summary>
-        /// <param name="boardingPassModel">要新增的 登機證錢包 物件。</param>
-        /// <returns>返回新增的 FlightObject 資源物件。</returns>
-        public Task<FlightObject> InsertObjectAsync(BoardingPassWalletModel boardingPassModel);
 
         /// <summary>
         /// 新增 FlightObject 資源物件。

@@ -140,7 +140,7 @@ namespace WalletLibrary.GoogleWallet.WalletTypes.Flight.Models
         /// Amadeus: <br/>
         /// 長度: <br/>
         /// </summary>
-        public UriModel? AirportCheckinInfo { get; set; }
+        public UriItem? AirportCheckinInfo { get; set; }
 
         /// <summary>
         /// 欄位: 32, 行李資訊<br/>
@@ -148,7 +148,7 @@ namespace WalletLibrary.GoogleWallet.WalletTypes.Flight.Models
         /// Amadeus: <br/>
         /// 長度: <br/>
         /// </summary>
-        public UriModel? BaggageLocalizedMessage { get; set; }
+        public UriItem? BaggageMessageInfo { get; set; }
 
         /// <summary>
         /// 欄位: 34, 營運航司<br/>
@@ -156,7 +156,7 @@ namespace WalletLibrary.GoogleWallet.WalletTypes.Flight.Models
         /// Amadeus: <br/>
         /// 長度: <br/>
         /// </summary>
-        public LocalizedItem? OperatingCarrierName { get; set; }
+        public TextDataItem? OperatingCarrierName { get; set; }
 
         /// <summary>
         /// 欄位: 39, 提醒文字<br/>
@@ -164,7 +164,7 @@ namespace WalletLibrary.GoogleWallet.WalletTypes.Flight.Models
         /// Amadeus: <br/>
         /// 長度: <br/>
         /// </summary>
-        public TextModel? ReminderMessage { get; set; }
+        public TextDataItem? ReminderMessage { get; set; }
 
         ///// <summary>
         ///// 其他設定, For Google Wallet Flight Class LinksModuleData
