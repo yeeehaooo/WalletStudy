@@ -51,7 +51,7 @@ namespace WalletLibrary.DTO
         /// <returns>格式化後的時間字串，格式為 yyyy-MM-ddTHH:mm:ssZ</returns>
         public static string ToIso8601DateTimeString(this System.DateTime dateTime)
         {
-            return dateTime.ToString("yyyy-MM-ddTHH:mm:ss");
+            return dateTime.ToString("yyyy-MM-dd'T'HH:mm:ss");
         }
 
         /// <summary>

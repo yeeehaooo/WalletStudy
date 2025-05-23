@@ -6,7 +6,7 @@ namespace WalletLibrary.Logger
     /// <summary>
     /// 提供共用的日誌輸出與例外處理功能。
     /// </summary>
-    public class BaseHandlerLogger<T>
+    public class BaseHandlerLogger<T> : IBaseHandlerLogger
     {
         private readonly ILogger<T> _logger;
 
@@ -64,5 +64,25 @@ namespace WalletLibrary.Logger
                 ex.GetType().Name
             );
         }
+    }
+
+    public interface IBaseHandlerLogger
+    {
+        /// <summary>
+        /// 將 API 回應物件序列化為 JSON 並輸出到主控台，方便除錯與監控。
+        /// </summary>
+        public void LogResponse(object response, string action = "response");
+
+        /// <summary>
+        /// 結構化輸出 Google API 例外
+        /// </summary>
+        public void HandleGoogleApiException(GoogleApiException ex, string action);
+
+        public void HandleIOException(IOException ex, string action);
+
+        /// <summary>
+        /// 一般例外處理，支援結構化日誌輸出
+        /// </summary>
+        public void HandleException(Exception ex, string action);
     }
 }

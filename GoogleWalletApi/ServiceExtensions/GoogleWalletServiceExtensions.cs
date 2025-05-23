@@ -1,63 +1,179 @@
-﻿//using Google.Apis.Auth.OAuth2;
-//using Google.Apis.Services;
-//using Google.Apis.Walletobjects.v1;
-//using WalletLibrary.Flight;
-//using WalletLibrary.Settings;
-//using Microsoft.Extensions.Options;
+﻿using Google.Apis.Auth.OAuth2;
+using Google.Apis.Services;
+using Google.Apis.Walletobjects.v1;
+using Google.Apis.Walletobjects.v1.Data;
+using WalletLibrary.GoogleWallet.Base;
+using WalletLibrary.GoogleWallet.Base.Interfaces;
+using WalletLibrary.GoogleWallet.Context;
+using WalletLibrary.GoogleWallet.Context.Interfaces;
+using WalletLibrary.GoogleWallet.Settings;
+using WalletLibrary.GoogleWallet.WalletTypes.Flight;
+using WalletLibrary.GoogleWallet.WalletTypes.Flight.Interfaces;
+using WalletLibrary.Services;
+using WalletLibrary.Services.Interfaces;
 
-//namespace GoogleWalletApi.ServiceExtensions
-//{
-//    /// <summary>
-//    /// 提供 Google Wallet 相關服務的 DI 註冊擴充方法。
-//    /// </summary>
-//    public static class GoogleWalletServiceExtensions
-//    {
-//        /// <summary>
-//        /// 註冊 Google Wallet 的核心服務，包括 ServiceAccountCredential 與 WalletobjectsService。
-//        /// </summary>
-//        /// <param name="services">IServiceCollection 實例。</param>
-//        /// <param name="configuration">應用程式的組態資訊。</param>
-//        /// <returns>回傳 IServiceCollection，支援方法鏈式呼叫。</returns>
-//        public static IServiceCollection AddGoogleWalletServices(
-//            this IServiceCollection services,
-//            IConfiguration configuration
-//        )
-//        {
-//            // 綁定設定檔並註冊 IOptions<GoogleWalletSettings>
-//            services.Configure<GoogleWalletSettings>(configuration.GetSection("GoogleWalletSettings"));
+namespace GoogleWalletApi.ServiceCollectionExtensions
+{
+    /// <summary>
+    /// 範例: 提供多組 Google Wallet 相關服務的 DI 註冊擴充方法, By CompanyCode 注入。
+    /// </summary>
+    public static class GoogleWalletServiceExtensions
+    {
+        /// <summary>
+        /// 註冊 Google Wallet 的核心服務與處理器工廠。
+        /// </summary>
+        /// <param name="services">依賴注入服務集合。</param>
+        /// <param name="configuration">應用程式設定。</param>
+        /// <returns>回傳 IServiceCollection 已註冊的服務集合。</returns>
+        public static IServiceCollection AddGoogleWalletServices(
+            this IServiceCollection services,
+            IConfiguration configuration
+        )
+        {
+            // 綁定設定檔並註冊為 IOptions
+            services.Configure<CompanyGoogleWalletSettings>(options =>
+            {
+                configuration.GetSection("GoogleWalletSettings").Bind(options);
+            });
 
-//            // 註冊 ServiceAccountCredential
-//            services.AddSingleton<ServiceAccountCredential>(provider =>
-//            {
-//                var settings = provider.GetRequiredService<IOptions<GoogleWalletSettings>>().Value;
-//                return (ServiceAccountCredential)
-//                    GoogleCredential
-//                        .FromFile(settings.ServiceAccountJsonPath)
-//                        .CreateScoped(WalletobjectsService.ScopeConstants.WalletObjectIssuer)
-//                        .UnderlyingCredential;
-//            });
+            var companySettings = configuration
+                .GetSection("GoogleWalletSettings")
+                .Get<CompanyGoogleWalletSettings>();
+            services.AddSingleton(companySettings);
 
-//            // 註冊 WalletobjectsService
-//            services.AddSingleton<WalletobjectsService>(provider =>
-//            {
-//                var credential = provider.GetRequiredService<ServiceAccountCredential>();
-//                return new WalletobjectsService(
-//                    new BaseClientService.Initializer { HttpClientInitializer = credential }
-//                );
-//            });
+            foreach (var companySetting in companySettings.CompanySettings)
+            {
+                var companyCode = companySetting.Key;
 
-//            return services;
-//        }
+                var setting = companySetting.Value;
+                //Check Option
+                if (string.IsNullOrWhiteSpace(setting.ServiceAccountJsonPath))
+                    throw new InvalidOperationException(
+                        $"CompanyCode: {companyCode}，設定檔錯誤，缺少 ServiceAccountJsonPath。"
+                    );
 
-//        /// <summary>
-//        /// 註冊 Google Wallet Flight 模組所需的服務。
-//        /// </summary>
-//        /// <param name="services">IServiceCollection 實例。</param>
-//        /// <returns>回傳 IServiceCollection，支援方法鏈式呼叫。</returns>
-//        public static IServiceCollection AddFlightService(this IServiceCollection services)
-//        {
-//            services.AddSingleton<FlightHandler>();
-//            return services;
-//        }
-//    }
-//}
+                var credential = (ServiceAccountCredential)
+                    GoogleCredential
+                        .FromFile(setting.ServiceAccountJsonPath)
+                        .CreateScoped(WalletobjectsService.ScopeConstants.WalletObjectIssuer)
+                        .UnderlyingCredential;
+                var walletService = new WalletobjectsService(
+                    new BaseClientService.Initializer { HttpClientInitializer = credential }
+                );
+
+                //先建立好完整服務,子元件應該都透過Wallet Handler操作
+                services.AddKeyedSingleton<IGoogleWalletContext, GoogleWalletContext>(
+                    companyCode,
+                    (provider, key) =>
+                    {
+                        return new GoogleWalletContext(setting, walletService, credential);
+                    }
+                );
+                // 依序 DI 注入 By CompanyCode
+
+                // Wallet Types
+                // Flight
+                services.AddGoogleFlightWalletServices(companyCode);
+
+                // Google Wallet Handler
+                services.AddKeyedSingleton<IGoogleWalletHandler, GoogleWalletHandler>(
+                    companyCode,
+                    (provider, key) =>
+                        new GoogleWalletHandler(
+                            provider.GetRequiredKeyedService<IGoogleWalletContext>(key),
+                            provider.GetRequiredKeyedService<
+                                IWalletHandler<FlightClass, FlightObject>
+                            >(key)
+                        )
+                );
+
+                // Service
+                services.AddKeyedSingleton<IGooglePassService, GooglePassService>(
+                    companyCode,
+                    (provider, key) =>
+                        new GooglePassService(
+                            provider.GetRequiredService<ILogger<GooglePassService>>(),
+                            provider.GetRequiredKeyedService<IGoogleWalletHandler>(key)
+                        )
+                );
+            }
+
+            return services;
+        }
+
+        /// <summary>
+        /// 註冊 Google Flight Wallet 的服務。
+        /// </summary>
+        /// <param name="services">依賴注入服務集合。</param>
+        /// <param name="companyCode">公司代碼</param>
+        /// <returns>回傳 IServiceCollection 已註冊的服務集合。</returns>
+        public static IServiceCollection AddGoogleFlightWalletServices(
+            this IServiceCollection services,
+            string companyCode
+        )
+        {
+            //// Flight Class Repository
+            //services.AddKeyedSingleton<IFlightClassRepository, FlightClassRepository>(
+            //    companyCode,
+            //    (provider, key) =>
+            //        new FlightClassRepository(
+            //            provider.GetRequiredService<ILogger<FlightClassRepository>>(),
+            //            provider
+            //                .GetRequiredKeyedService<IGoogleWalletContext>(companyCode)
+            //                .WalletobjectsService
+            //        )
+            //);
+
+            //// Flight Object Repository
+            //services.AddKeyedSingleton<IFlightObjectRepository, FlightObjectRepository>(
+            //    companyCode,
+            //    (provider, key) =>
+            //        new FlightObjectRepository(
+            //            provider.GetRequiredService<ILogger<FlightObjectRepository>>(),
+            //            provider
+            //                .GetRequiredKeyedService<IGoogleWalletContext>(key)
+            //                .WalletobjectsService
+            //        )
+            //);
+            // Flight Class Repository
+            services.AddKeyedSingleton<IClassRepository<FlightClass>, FlightClassRepository>(
+                companyCode,
+                (provider, key) =>
+                    new FlightClassRepository(
+                        provider.GetRequiredService<ILogger<FlightClassRepository>>(),
+                        provider
+                            .GetRequiredKeyedService<IGoogleWalletContext>(companyCode)
+                            .WalletobjectsService
+                    )
+            );
+
+            // Flight Object Repository
+            services.AddKeyedSingleton<IObjectRepository<FlightObject>, FlightObjectRepository>(
+                companyCode,
+                (provider, key) =>
+                    new FlightObjectRepository(
+                        provider.GetRequiredService<ILogger<FlightObjectRepository>>(),
+                        provider
+                            .GetRequiredKeyedService<IGoogleWalletContext>(key)
+                            .WalletobjectsService
+                    )
+            );
+            // Flight Wallet
+            services.AddKeyedSingleton<
+                IWalletHandler<FlightClass, FlightObject>,
+                BoardingPassesHandler
+            >(
+                companyCode,
+                (provider, key) =>
+                    new BoardingPassesHandler(
+                        provider.GetRequiredService<ILogger<BoardingPassesHandler>>(),
+                        provider.GetRequiredKeyedService<IGoogleWalletContext>(key),
+                        provider.GetRequiredKeyedService<IClassRepository<FlightClass>>(key),
+                        provider.GetRequiredKeyedService<IObjectRepository<FlightObject>>(key)
+                    )
+            );
+
+            return services;
+        }
+    }
+}

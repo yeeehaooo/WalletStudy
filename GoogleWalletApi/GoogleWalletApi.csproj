@@ -7,13 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="ServiceExtensions\**" />
-    <Content Remove="ServiceExtensions\**" />
-    <EmbeddedResource Remove="ServiceExtensions\**" />
-    <None Remove="ServiceExtensions\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Serilog" Version="4.2.0" />
     <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
