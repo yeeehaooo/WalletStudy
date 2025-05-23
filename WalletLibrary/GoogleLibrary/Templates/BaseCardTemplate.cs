@@ -4,33 +4,20 @@ using WalletLibrary.Define;
 
 namespace WalletLibrary.GoogleLibrary.Templates
 {
-    public class FieldItem
-    {
-        public FieldItem(
-            string fieldName,
-            string fieldPath,
-            string? dateFormat = null,
-            bool isPredefinedItem = false
-        )
-        {
-            FieldName = fieldName;
-            FieldPath = fieldPath;
-            DateFormat = dateFormat;
-            IsPredefinedItem = isPredefinedItem;
-        }
-
-        public string FieldName { get; set; }
-        public string FieldPath { get; set; }
-        public string? DateFormat { get; set; } = null;
-        public bool IsPredefinedItem { get; set; } = false;
-    }
-
     /// <summary>
     /// 設定 模板會用的欄位 與對應 Google Api 欄位 跟 欄位ID
     /// </summary>
-    public static class CardTemplateFields
+    public static class BaseCardTemplate
     {
         #region 定義要顯示的資訊欄位
+
+        public static readonly FieldItem FlightNumber = new FieldItem(
+            "FlightNumber",
+            "flightNumberAndOperatingFlightNumber",
+            null,
+            true
+        );
+
         public static readonly FieldItem DepartureDateTime = new FieldItem(
             "LocalScheduledDepartureDateTime",
             "class.localScheduledDepartureDateTime",
@@ -208,7 +195,6 @@ namespace WalletLibrary.GoogleLibrary.Templates
         }
 
         //範本
-
         public static ClassTemplateInfo GetCardTemplate(string companyCode)
         {
             switch (companyCode)
@@ -216,7 +202,7 @@ namespace WalletLibrary.GoogleLibrary.Templates
                 case AirLineIATADefine.CI:
                     return CI_Template();
                 case AirLineIATADefine.AE:
-                    return CI_Template();
+                    return AE_Template();
                 default:
                     return DefaultTemplate();
             }
@@ -262,6 +248,70 @@ namespace WalletLibrary.GoogleLibrary.Templates
                         {
                             StartItem = PassengerName.ToCardRowItem(),
                             EndItem = SequenceNumber.ToCardRowItem(),
+                        },
+                    },
+                },
+            };
+            classTemplateInfo.DetailsTemplateOverride = new DetailsTemplateOverride
+            {
+                DetailsItemInfos = new List<DetailsItemInfo>
+                {
+                    AirportCheckinInfo.ToDetailItem(),
+                    BaggageInfo.ToDetailItem(),
+                    FlyerProgram.ToDetailItem(),
+                    ETicketNumber.ToDetailItem(),
+                    ConfirmationCode.ToDetailItem(),
+                    FlightDate.ToDetailItem(),
+                    SeatClass.ToDetailItem(),
+                    BookingClass.ToDetailItem(),
+                    CodeShare.ToDetailItem(),
+                    BaggagesValues.ToDetailItem(),
+                    SpecialMealCode.ToDetailItem(),
+                    ReminderMessage.ToDetailItem(),
+                },
+            };
+
+            classTemplateInfo.CardBarcodeSectionDetails = new CardBarcodeSectionDetails
+            {
+                FirstTopDetail = SecurityProgramLogo.ToBarcodeSectionDetail(),
+                SecondTopDetail = PrivilegeImage.ToBarcodeSectionDetail(),
+                FirstBottomDetail = AdditionalTextString.ToBarcodeSectionDetail(),
+            };
+
+            return classTemplateInfo;
+        }
+
+        private static ClassTemplateInfo AE_Template()
+        {
+            var classTemplateInfo = new ClassTemplateInfo();
+
+            classTemplateInfo.CardTemplateOverride = new CardTemplateOverride
+            {
+                CardRowTemplateInfos = new List<CardRowTemplateInfo>
+                {
+                    // 第一列：（1. 出發時間/航廈， 2. 抵達時間/抵達航廈）
+                    new CardRowTemplateInfo
+                    {
+                        ThreeItems = new CardRowThreeItems
+                        {
+                            StartItem = FlightNumber.ToCardRowItem(),
+                            MiddleItem = BoardingDateTime.ToCardRowItem(),
+                            EndItem = OriginGate.ToCardRowItem(),
+                        },
+                    },
+                    // 第二列：（1. 旅客姓名）
+                    new CardRowTemplateInfo
+                    {
+                        OneItem = new CardRowOneItem { Item = PassengerName.ToCardRowItem() },
+                    },
+                    //// 第三列（1. 序號， 2. 座位， 3.艙等 ）
+                    new CardRowTemplateInfo
+                    {
+                        ThreeItems = new CardRowThreeItems
+                        {
+                            StartItem = SequenceNumber.ToCardRowItem(),
+                            MiddleItem = SeatNumber.ToCardRowItem(),
+                            EndItem = SeatClass.ToCardRowItem(),
                         },
                     },
                 },

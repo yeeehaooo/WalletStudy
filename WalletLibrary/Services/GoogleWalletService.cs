@@ -253,7 +253,6 @@ namespace WalletLibrary.Services
             flightClass.Origin.Gate = flightInfo.DepartureAirport.Gate; // 登機門號碼
             flightClass.Origin.AirportNameOverride =
                 flightInfo.DepartureAirport.NameOverride?.ToLocalizedString(); // 出發機場名稱複寫 可以設定多語系
-
             // 5. 抵達機場資訊
             flightClass.Destination = new AirportInfo();
             flightClass.Destination.AirportIataCode = flightInfo.ArrivalAirport.IATA; // 抵達地機場的 IATA 三碼代碼
@@ -318,9 +317,7 @@ namespace WalletLibrary.Services
             // 10. 文字區塊模組,可以設定多組文字區塊(支援多語系 標題 & 內文), 非必填
             flightClass.TextModulesData = new List<TextModuleData>
             {
-                flightInfo.ReminderMessage.ToTextModule(
-                    CardTemplateFields.ReminderMessage.FieldName
-                ),
+                flightInfo.ReminderMessage.ToTextModule(BaseCardTemplate.ReminderMessage.FieldName),
             };
 
             // 11. 連結模組, 可以設定多組連結, 非必填
@@ -331,11 +328,11 @@ namespace WalletLibrary.Services
                 {
                     // 11-1. 機場與報到櫃台資訊(By語系) + Link
                     flightInfo.AirportCheckinInfo?.ToUriModule(
-                        CardTemplateFields.AirportCheckinInfo.FieldName
+                        BaseCardTemplate.AirportCheckinInfo.FieldName
                     ),
                     // 11-2. 詳細行李資訊(By語系) + Link
                     flightInfo.BaggageMessageInfo?.ToUriModule(
-                        CardTemplateFields.BaggageInfo.FieldName
+                        BaseCardTemplate.BaggageInfo.FieldName
                     ),
                 },
             };
@@ -346,9 +343,7 @@ namespace WalletLibrary.Services
             flightClass.Messages = new List<Message> { };
 
             // 預設範本(有override 會清空預設排版)
-            flightClass.ClassTemplateInfo = CardTemplateFields.GetCardTemplate(
-                AirLineIATADefine.CI
-            );
+            flightClass.ClassTemplateInfo = BaseCardTemplate.GetCardTemplate(AirLineIATADefine.CI);
 
             return flightClass;
         }
@@ -412,7 +407,7 @@ namespace WalletLibrary.Services
                     BoardingPrivilegeImage = !passengerInfo.IsSkyPriority
                         ? null
                         : GoogleWalletUtility.CreateImageModule(
-                            CardTemplateFields.PrivilegeImage.FieldName,
+                            BaseCardTemplate.PrivilegeImage.FieldName,
                             _settings.BoardingPrivilegeImage,
                             "SKY PRIORITY"
                         ),
@@ -420,7 +415,7 @@ namespace WalletLibrary.Services
                 SecurityProgramLogo = !passengerInfo.IsTSAPreCheck
                     ? null
                     : GoogleWalletUtility.CreateImageModule(
-                        CardTemplateFields.SecurityProgramLogo.FieldName,
+                        BaseCardTemplate.SecurityProgramLogo.FieldName,
                         _settings.SecurityProgramLogo,
                         "TSA PRE"
                     ),
@@ -467,12 +462,12 @@ namespace WalletLibrary.Services
                 {
                     //需要多語系要額外設定標題與內容
                     GoogleWalletUtility.CreateTextModuleData(
-                        CardTemplateFields.BaggagesValues.FieldName,
+                        BaseCardTemplate.BaggagesValues.FieldName,
                         "Baggage Info",
                         string.Join(Environment.NewLine, passengerInfo.BaggagesValues)
                     ),
                     GoogleWalletUtility.CreateTextModuleData(
-                        CardTemplateFields.CodeShare.FieldName,
+                        BaseCardTemplate.CodeShare.FieldName,
                         "Code Share",
                         GoogleWalletUtility.FormatFlightNumber(
                             passengerInfo.Marketing.CarrierCode,
@@ -480,17 +475,17 @@ namespace WalletLibrary.Services
                         )
                     ),
                     GoogleWalletUtility.CreateTextModuleData(
-                        CardTemplateFields.BookingClass.FieldName,
+                        BaseCardTemplate.BookingClass.FieldName,
                         "Booking Class",
                         passengerInfo.BookingClass
                     ),
                     GoogleWalletUtility.CreateTextModuleData(
-                        CardTemplateFields.SpecialMealCode.FieldName,
+                        BaseCardTemplate.SpecialMealCode.FieldName,
                         "Special Meal",
                         passengerInfo.SpecialMealCode
                     ),
                     GoogleWalletUtility.CreateTextModuleData(
-                        CardTemplateFields.AdditionalTextString.FieldName,
+                        BaseCardTemplate.AdditionalTextString.FieldName,
                         "Additional Text String",
                         passengerInfo.AdditionalTextString
                     ),
