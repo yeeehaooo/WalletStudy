@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using WalletLibrary.Define;
 using WalletLibrary.DTO;
+using WalletLibrary.GoogleLibrary.Defines;
 using WalletLibrary.GoogleLibrary.Templates;
 using WalletLibrary.GoogleWallet.Base.Interfaces;
 using WalletLibrary.GoogleWallet.Models;
@@ -10,14 +11,14 @@ using WalletLibrary.GoogleWallet.Models.Languages;
 using WalletLibrary.GoogleWallet.Settings;
 using WalletLibrary.GoogleWallet.WalletTypes.Flight.Models;
 using WalletLibrary.Services.Interfaces;
-using static WalletLibrary.Define.FlightClassDefine;
+using static WalletLibrary.GoogleLibrary.Defines.FlightClassDefine;
 using GoogleApiUri = Google.Apis.Walletobjects.v1.Data.Uri;
 
 namespace WalletLibrary.Services
 {
-    public class GooglePassService : IGooglePassService
+    public partial class GoogleWalletService : IGoogleWalletService
     {
-        private readonly ILogger<GooglePassService> _logger;
+        private readonly ILogger<GoogleWalletService> _logger;
 
         private readonly IGoogleWalletHandler _googleWalletHandler;
 
@@ -27,8 +28,8 @@ namespace WalletLibrary.Services
 
         private GoogleWalletSettings _settings;
 
-        public GooglePassService(
-            ILogger<GooglePassService> logger,
+        public GoogleWalletService(
+            ILogger<GoogleWalletService> logger,
             IGoogleWalletHandler googleWalletHandler
         )
         {
@@ -37,6 +38,19 @@ namespace WalletLibrary.Services
             _settings = googleWalletHandler.WalletSettings;
             _issuerId = googleWalletHandler.WalletSettings.IssuerId;
             _issuerName = googleWalletHandler.WalletSettings.IssuerName;
+        }
+
+        #region Google Wallet 登機證
+        public async Task<FlightClass> InsertFlightInfoAsync(FlightInfo flightInfo)
+        {
+            var flightClass = BuildFlightClass(flightInfo);
+            return await InsertFlightClassAsync(flightClass);
+        }
+
+        public async Task<FlightObject> InsertPassengerInfoAsync(PassengerInfo passengerInfo)
+        {
+            var flightObject = BuildFlightObject(passengerInfo);
+            return await InsertFlightObjectAsync(flightObject);
         }
 
         /// <summary>
@@ -332,7 +346,9 @@ namespace WalletLibrary.Services
             flightClass.Messages = new List<Message> { };
 
             // 預設範本(有override 會清空預設排版)
-            flightClass.ClassTemplateInfo = CardTemplateFields.GetCardTemplate(IATADefine.CI);
+            flightClass.ClassTemplateInfo = CardTemplateFields.GetCardTemplate(
+                AirLineIATADefine.CI
+            );
 
             return flightClass;
         }
@@ -487,41 +503,30 @@ namespace WalletLibrary.Services
 
         #endregion
 
-        #region 上傳 Google
-        public async Task<FlightClass> InsertFlightInfoAsync(FlightInfo flightInfo)
-        {
-            var flightClass = BuildFlightClass(flightInfo);
-            return await InsertClassAsync(flightClass);
-        }
-
-        public async Task<FlightObject> InsertPassengerInfoAsync(PassengerInfo passengerInfo)
-        {
-            var flightObject = BuildFlightObject(passengerInfo);
-            return await InsertObjectAsync(flightObject);
-        }
-        #endregion
-
         #region 產生 JWT 鏈接
-        public async Task<string> GetJwtToken(string flightClassId, string flightObjectId)
+        public string GetBoardingPassesJwtToken(string flightClassId, string flightObjectId)
         {
-            return await _googleWalletHandler.FlightWallet.GetJwtToken(
+            return _googleWalletHandler.GetJwtToken(
                 $"{_issuerId}.{flightClassId}",
-                $"{_issuerId}.{flightObjectId}"
+                $"{_issuerId}.{flightObjectId}",
+                "boardingpasses"
             );
         }
 
-        public async Task<string> GetJwtToken(string flightObjectId)
+        public string GetBoardingPassesJwtToken(string flightObjectId)
         {
-            return await _googleWalletHandler.FlightWallet.GetJwtToken(
-                $"{_issuerId}.{flightObjectId}"
+            return _googleWalletHandler.GetJwtToken(
+                $"{_issuerId}.{flightObjectId}",
+                "boardingpasses"
             );
         }
+
         #endregion
 
-        #region ClassRepository
-        public async Task<FlightClass> GetClassByClassIdAsync(string classId)
+        #region Class Resource
+        public async Task<FlightClass> GetFlightClassByClassIdAsync(string classId)
         {
-            return await GetClassByResourceIdAsync($"{_issuerId}.{classId}");
+            return await GetFlightClassByResourceIdAsync($"{_issuerId}.{classId}");
         }
 
         /// <summary>
@@ -529,101 +534,114 @@ namespace WalletLibrary.Services
         /// </summary>
         /// <param name="resourceId">格式: IssuerId,ClassId</param>
         /// <returns></returns>
-        public async Task<FlightClass> GetClassByResourceIdAsync(string resourceId)
+        public async Task<FlightClass> GetFlightClassByResourceIdAsync(string resourceId)
         {
-            return await _googleWalletHandler.FlightWallet.ClassRepository.GetAsync(resourceId);
+            return await _googleWalletHandler.FlightWallet.ClassResource.GetAsync(resourceId);
         }
 
-        public async Task<FlightClass> InsertClassAsync(FlightClass flightClass)
+        public async Task<FlightClass> InsertFlightClassAsync(FlightClass flightClass)
         {
-            return await _googleWalletHandler.FlightWallet.ClassRepository.InsertAsync(flightClass);
+            return await _googleWalletHandler.FlightWallet.ClassResource.InsertAsync(flightClass);
         }
 
-        public async Task<FlightClass> UpdateClassAsync(FlightClass flightClass)
-        {
-            flightClass.ReviewStatus = ReviewStatus.UNDER_REVIEW;
-            return await _googleWalletHandler.FlightWallet.ClassRepository.UpdateAsync(flightClass);
-        }
-
-        public async Task<FlightClass> PatchClassAsync(FlightClass flightClass)
+        public async Task<FlightClass> UpdateFlightClassAsync(FlightClass flightClass)
         {
             flightClass.ReviewStatus = ReviewStatus.UNDER_REVIEW;
-            return await _googleWalletHandler.FlightWallet.ClassRepository.PatchAsync(flightClass);
+            return await _googleWalletHandler.FlightWallet.ClassResource.UpdateAsync(flightClass);
         }
 
-        public async Task<FlightClass> AddClassMessageAsync(
+        public async Task<FlightClass> PatchFlightClassAsync(FlightClass flightClass)
+        {
+            flightClass.ReviewStatus = ReviewStatus.UNDER_REVIEW;
+            return await _googleWalletHandler.FlightWallet.ClassResource.PatchAsync(flightClass);
+        }
+
+        public async Task<FlightClass> AddFlightClassMessageAsync(
             AddMessageRequest addMessageRequest,
             string resourceId
         )
         {
-            return await _googleWalletHandler.FlightWallet.ClassRepository.AddMessageAsync(
+            return await _googleWalletHandler.FlightWallet.ClassResource.AddMessageAsync(
                 addMessageRequest,
                 resourceId
             );
         }
         #endregion
 
-        #region ObjectRepository
-        public async Task<FlightObject> GetObjectByObjectIdAsync(string objectId)
+        #region Object Resource
+        public async Task<FlightObject> GetFlightObjectByObjectIdAsync(string objectId)
         {
-            return await GetObjectByResourceIdAsync($"{_issuerId}.{objectId}");
+            return await GetFlightObjectByResourceIdAsync($"{_issuerId}.{objectId}");
         }
 
-        public async Task<FlightObject> GetObjectByResourceIdAsync(string resourceId)
+        public async Task<FlightObject> GetFlightObjectByResourceIdAsync(string resourceId)
         {
-            return await _googleWalletHandler.FlightWallet.ObjectRepository.GetAsync(resourceId);
+            return await _googleWalletHandler.FlightWallet.ObjectResource.GetAsync(resourceId);
         }
 
-        public async Task<FlightObject> InsertObjectAsync(FlightObject flightObject)
+        public async Task<FlightObject> InsertFlightObjectAsync(FlightObject flightObject)
         {
-            return await _googleWalletHandler.FlightWallet.ObjectRepository.InsertAsync(
-                flightObject
-            );
+            return await _googleWalletHandler.FlightWallet.ObjectResource.InsertAsync(flightObject);
         }
 
-        public async Task<FlightObject> UpdateObjectAsync(FlightObject flightObject)
+        public async Task<FlightObject> UpdateFlightObjectAsync(FlightObject flightObject)
         {
-            return await _googleWalletHandler.FlightWallet.ObjectRepository.UpdateAsync(
-                flightObject
-            );
+            return await _googleWalletHandler.FlightWallet.ObjectResource.UpdateAsync(flightObject);
         }
 
-        public async Task<FlightObject> PatchObjectAsync(FlightObject flightObject)
+        public async Task<FlightObject> PatchFlightObjectAsync(FlightObject flightObject)
         {
             flightObject.HeroImage = null;
-            return await _googleWalletHandler.FlightWallet.ObjectRepository.PatchAsync(
-                flightObject
-            );
+            return await _googleWalletHandler.FlightWallet.ObjectResource.PatchAsync(flightObject);
         }
 
-        public async Task<FlightObject> AddObjectMessageAsync(
+        public async Task<FlightObject> AddFlightObjectMessageAsync(
             AddMessageRequest addMessageRequest,
             string resourceId
         )
         {
-            return await _googleWalletHandler.FlightWallet.ObjectRepository.AddMessageAsync(
+            return await _googleWalletHandler.FlightWallet.ObjectResource.AddMessageAsync(
                 addMessageRequest,
                 resourceId
             );
         }
 
-        public async Task<FlightObject> ExpireObjectAsync(string resourceId)
+        public async Task<FlightObject> ExpireFlightObjectAsync(string objectId)
         {
-            return await _googleWalletHandler.FlightWallet.ObjectRepository.ExpireObjectAsync(
+            return await ExpireFlightObjectByResourceIdAsync(
+                $"{_googleWalletHandler.WalletSettings.IssuerId}.{objectId}"
+            );
+        }
+
+        public async Task<FlightObject> ExpireFlightObjectByResourceIdAsync(string resourceId)
+        {
+            return await _googleWalletHandler.FlightWallet.ObjectResource.ExpireObjectAsync(
                 resourceId
             );
         }
 
-        public async Task<FlightObject> UpdateObjectStatusAsync(
+        public async Task<FlightObject> UpdateFlightObjectStatusAsync(
+            string objectId,
+            string objectState
+        )
+        {
+            return await UpdateFlightObjectStatusByResourceIdAsync(
+                $"{_googleWalletHandler.WalletSettings.IssuerId}.{objectId}",
+                objectState
+            );
+        }
+
+        public async Task<FlightObject> UpdateFlightObjectStatusByResourceIdAsync(
             string resourceId,
             string objectState
         )
         {
-            return await _googleWalletHandler.FlightWallet.ObjectRepository.UpdateObjectStatusAsync(
+            return await _googleWalletHandler.FlightWallet.ObjectResource.UpdateObjectStatusAsync(
                 resourceId,
                 objectState
             );
         }
+        #endregion
         #endregion
     }
 }

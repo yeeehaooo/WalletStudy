@@ -1,7 +1,7 @@
 ﻿using Google.Apis.Walletobjects.v1;
 using Google.Apis.Walletobjects.v1.Data;
 using Microsoft.Extensions.Logging;
-using WalletLibrary.Define;
+using WalletLibrary.GoogleLibrary.Defines;
 using WalletLibrary.GoogleWallet.Base.Interfaces;
 using WalletLibrary.Logger;
 
@@ -11,9 +11,9 @@ namespace WalletLibrary.GoogleWallet.WalletTypes.Flight
     /// 提供對 Google Wallet 中 FlightObject 的操作，包括建立、取得、更新、部分更新以及新增訊息。
     /// 繼承自 BaseHandlerLogger，具備統一的日誌與例外處理機制。
     /// </summary>
-    public class FlightObjectRepository
-        : BaseHandlerLogger<FlightObjectRepository>,
-            IObjectRepository<FlightObject>
+    public class FlightObjectResource
+        : BaseHandlerLogger<FlightObjectResource>,
+            IObjectResource<FlightObject>
     {
         protected readonly WalletobjectsService _walletobjectsService;
 
@@ -21,8 +21,8 @@ namespace WalletLibrary.GoogleWallet.WalletTypes.Flight
         /// 初始化 FlightObjectHandler 實例。
         /// </summary>
         /// <param name="walletobjectsService">Google Wallet API 的服務實例，用於操作 FlightObject。</param>
-        public FlightObjectRepository(
-            ILogger<FlightObjectRepository> logger,
+        public FlightObjectResource(
+            ILogger<FlightObjectResource> logger,
             WalletobjectsService walletobjectsService
         )
             : base(logger)

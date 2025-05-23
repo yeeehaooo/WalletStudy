@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using System.Runtime.Serialization;
 
-namespace WalletLibrary.Define
+namespace WalletLibrary.GoogleLibrary.Defines
 {
     /// <summary>
     /// 定義 Google Wallet FlightObject 的狀態。

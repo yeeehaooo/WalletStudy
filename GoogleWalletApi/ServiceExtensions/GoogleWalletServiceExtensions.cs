@@ -71,8 +71,8 @@ namespace GoogleWalletApi.ServiceCollectionExtensions
                 // 依序 DI 注入 By CompanyCode
 
                 // Wallet Types
-                // Flight
-                services.AddGoogleFlightWalletServices(companyCode);
+                // Boarding Passes
+                services.AddGoogleBoardingPassesServices(companyCode);
 
                 // Google Wallet Handler
                 services.AddKeyedSingleton<IGoogleWalletHandler, GoogleWalletHandler>(
@@ -87,11 +87,11 @@ namespace GoogleWalletApi.ServiceCollectionExtensions
                 );
 
                 // Service
-                services.AddKeyedSingleton<IGooglePassService, GooglePassService>(
+                services.AddKeyedSingleton<IGoogleWalletService, GoogleWalletService>(
                     companyCode,
                     (provider, key) =>
-                        new GooglePassService(
-                            provider.GetRequiredService<ILogger<GooglePassService>>(),
+                        new GoogleWalletService(
+                            provider.GetRequiredService<ILogger<GoogleWalletService>>(),
                             provider.GetRequiredKeyedService<IGoogleWalletHandler>(key)
                         )
                 );
@@ -106,40 +106,17 @@ namespace GoogleWalletApi.ServiceCollectionExtensions
         /// <param name="services">依賴注入服務集合。</param>
         /// <param name="companyCode">公司代碼</param>
         /// <returns>回傳 IServiceCollection 已註冊的服務集合。</returns>
-        public static IServiceCollection AddGoogleFlightWalletServices(
+        public static IServiceCollection AddGoogleBoardingPassesServices(
             this IServiceCollection services,
             string companyCode
         )
         {
-            //// Flight Class Repository
-            //services.AddKeyedSingleton<IFlightClassRepository, FlightClassRepository>(
-            //    companyCode,
-            //    (provider, key) =>
-            //        new FlightClassRepository(
-            //            provider.GetRequiredService<ILogger<FlightClassRepository>>(),
-            //            provider
-            //                .GetRequiredKeyedService<IGoogleWalletContext>(companyCode)
-            //                .WalletobjectsService
-            //        )
-            //);
-
-            //// Flight Object Repository
-            //services.AddKeyedSingleton<IFlightObjectRepository, FlightObjectRepository>(
-            //    companyCode,
-            //    (provider, key) =>
-            //        new FlightObjectRepository(
-            //            provider.GetRequiredService<ILogger<FlightObjectRepository>>(),
-            //            provider
-            //                .GetRequiredKeyedService<IGoogleWalletContext>(key)
-            //                .WalletobjectsService
-            //        )
-            //);
             // Flight Class Repository
-            services.AddKeyedSingleton<IClassRepository<FlightClass>, FlightClassRepository>(
+            services.AddKeyedSingleton<IClassResource<FlightClass>, FlightClassResource>(
                 companyCode,
                 (provider, key) =>
-                    new FlightClassRepository(
-                        provider.GetRequiredService<ILogger<FlightClassRepository>>(),
+                    new FlightClassResource(
+                        provider.GetRequiredService<ILogger<FlightClassResource>>(),
                         provider
                             .GetRequiredKeyedService<IGoogleWalletContext>(companyCode)
                             .WalletobjectsService
@@ -147,17 +124,17 @@ namespace GoogleWalletApi.ServiceCollectionExtensions
             );
 
             // Flight Object Repository
-            services.AddKeyedSingleton<IObjectRepository<FlightObject>, FlightObjectRepository>(
+            services.AddKeyedSingleton<IObjectResource<FlightObject>, FlightObjectResource>(
                 companyCode,
                 (provider, key) =>
-                    new FlightObjectRepository(
-                        provider.GetRequiredService<ILogger<FlightObjectRepository>>(),
+                    new FlightObjectResource(
+                        provider.GetRequiredService<ILogger<FlightObjectResource>>(),
                         provider
                             .GetRequiredKeyedService<IGoogleWalletContext>(key)
                             .WalletobjectsService
                     )
             );
-            // Flight Wallet
+            // Wallet
             services.AddKeyedSingleton<
                 IWalletHandler<FlightClass, FlightObject>,
                 BoardingPassesHandler
@@ -165,10 +142,8 @@ namespace GoogleWalletApi.ServiceCollectionExtensions
                 companyCode,
                 (provider, key) =>
                     new BoardingPassesHandler(
-                        provider.GetRequiredService<ILogger<BoardingPassesHandler>>(),
-                        provider.GetRequiredKeyedService<IGoogleWalletContext>(key),
-                        provider.GetRequiredKeyedService<IClassRepository<FlightClass>>(key),
-                        provider.GetRequiredKeyedService<IObjectRepository<FlightObject>>(key)
+                        provider.GetRequiredKeyedService<IClassResource<FlightClass>>(key),
+                        provider.GetRequiredKeyedService<IObjectResource<FlightObject>>(key)
                     )
             );
 

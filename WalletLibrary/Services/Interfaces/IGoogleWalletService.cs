@@ -3,10 +3,10 @@ using WalletLibrary.GoogleWallet.WalletTypes.Flight.Models;
 
 namespace WalletLibrary.Services.Interfaces
 {
-    public interface IGooglePassService
+    public interface IGoogleWalletService
     {
-        public Task<string> GetJwtToken(string flightClassId, string flightObjectId);
-        public Task<string> GetJwtToken(string flightObjectId);
+        public string GetBoardingPassesJwtToken(string classId, string objectId);
+        public string GetBoardingPassesJwtToken(string objectId);
 
         public Task<string> CreateFlightAsync(string classId);
         public Task<string> CreatePassengerAsync(string classId, string objectId);
@@ -31,35 +31,35 @@ namespace WalletLibrary.Services.Interfaces
         /// </summary>
         /// <param name="classId"></param>
         /// <returns>返回獲取的 FlightClass 資源物件。</returns>
-        public Task<FlightClass> GetClassByClassIdAsync(string classId);
+        public Task<FlightClass> GetFlightClassByClassIdAsync(string classId);
 
         /// <summary>
         /// 獲取特定的 FlightClass 資源物件。
         /// </summary>
         /// <param name="resourceId">格式為 "{IssuerId}.{classSuffix}"。</param>
         /// <returns>返回獲取的 FlightClass 資源物件。</returns>
-        public Task<FlightClass> GetClassByResourceIdAsync(string resourceId);
+        public Task<FlightClass> GetFlightClassByResourceIdAsync(string resourceId);
 
         /// <summary>
         /// 新增 FlightClass 資源物件。
         /// </summary>
         /// <param name="flightClass">要新增的 FlightClass 資源物件。</param>
         /// <returns>返回新增的 FlightClass 資源物件。</returns>
-        public Task<FlightClass> InsertClassAsync(FlightClass flightClass);
+        public Task<FlightClass> InsertFlightClassAsync(FlightClass flightClass);
 
         /// <summary>
         /// 更新現有的 FlightClass 資源物件。
         /// </summary>
         /// <param name="flightClass">要更新的 FlightClass 資源物件。</param>
         /// <returns>返回更新後的 FlightClass 資源物件。</returns>
-        public Task<FlightClass> UpdateClassAsync(FlightClass flightClass);
+        public Task<FlightClass> UpdateFlightClassAsync(FlightClass flightClass);
 
         /// <summary>
         /// 部分更新現有的 FlightClass 資源物件。
         /// </summary>
         /// <param name="flightClass">要部分更新的 FlightClass 資源物件。</param>
         /// <returns>返回部分更新後的 FlightClass 資源物件。</returns>
-        public Task<FlightClass> PatchClassAsync(FlightClass flightClass);
+        public Task<FlightClass> PatchFlightClassAsync(FlightClass flightClass);
 
         /// <summary>
         /// 向指定的 FlightClass 資源物件添加訊息。
@@ -67,7 +67,7 @@ namespace WalletLibrary.Services.Interfaces
         /// <param name="addMessageRequest">訊息請求物件。</param>
         /// <param name="resourceId">格式為 "IssuerId.classSuffix"。</param>
         /// <returns>返回添加訊息後的 FlightClass 資源物件。</returns>
-        public Task<FlightClass> AddClassMessageAsync(
+        public Task<FlightClass> AddFlightClassMessageAsync(
             AddMessageRequest addMessageRequest,
             string resourceId
         );
@@ -79,35 +79,35 @@ namespace WalletLibrary.Services.Interfaces
         /// </summary>
         /// <param name="objectId"></param>
         /// <returns>返回獲取的 FlightObject 資源物件。</returns>
-        public Task<FlightObject> GetObjectByObjectIdAsync(string objectId);
+        public Task<FlightObject> GetFlightObjectByObjectIdAsync(string objectId);
 
         /// <summary>
         /// 獲取特定的 FlightObject 資源物件。
         /// </summary>
         /// <param name="resourceId">格式為 "{IssuerId}.{objectSuffix}"。</param>
         /// <returns>返回獲取的 FlightObject 資源物件。</returns>
-        public Task<FlightObject> GetObjectByResourceIdAsync(string resourceId);
+        public Task<FlightObject> GetFlightObjectByResourceIdAsync(string resourceId);
 
         /// <summary>
         /// 新增 FlightObject 資源物件。
         /// </summary>
         /// <param name="flightObject">要新增的 FlightObject 資源物件。</param>
         /// <returns>返回新增的 FlightObject 資源物件。</returns>
-        public Task<FlightObject> InsertObjectAsync(FlightObject flightObject);
+        public Task<FlightObject> InsertFlightObjectAsync(FlightObject flightObject);
 
         /// <summary>
         /// 更新現有的 FlightObject 資源物件。
         /// </summary>
         /// <param name="flightObject">要更新的 FlightObject 資源物件。</param>
         /// <returns>返回更新後的 FlightObject 資源物件。</returns>
-        public Task<FlightObject> UpdateObjectAsync(FlightObject flightObject);
+        public Task<FlightObject> UpdateFlightObjectAsync(FlightObject flightObject);
 
         /// <summary>
         /// 部分更新現有的 FlightObject 資源物件。
         /// </summary>
         /// <param name="flightObject">要部分更新的 FlightObject 資源物件。</param>
         /// <returns>返回部分更新後的 FlightObject 資源物件。</returns>
-        public Task<FlightObject> PatchObjectAsync(FlightObject flightObject);
+        public Task<FlightObject> PatchFlightObjectAsync(FlightObject flightObject);
 
         /// <summary>
         /// 向指定的 FlightObject 資源物件添加訊息。
@@ -115,7 +115,7 @@ namespace WalletLibrary.Services.Interfaces
         /// <param name="addMessageRequest">訊息請求物件。</param>
         /// <param name="resourceId">格式為 "IssuerId.objectSuffix"。</param>
         /// <returns>返回添加訊息後的 FlightObject 資源物件。</returns>
-        public Task<FlightObject> AddObjectMessageAsync(
+        public Task<FlightObject> AddFlightObjectMessageAsync(
             AddMessageRequest addMessageRequest,
             string resourceId
         );
@@ -123,9 +123,27 @@ namespace WalletLibrary.Services.Interfaces
         /// <summary>
         /// 根據資源 ID 更新 Google Wallet 為票券已過期(EXPIRED) 狀態。
         /// </summary>
+        /// <param name="objectId">objectId</param>
+        /// <returns>返回更新狀態後的 FlightObject 資源物件。</returns>
+        public Task<FlightObject> ExpireFlightObjectAsync(string objectId);
+
+        /// <summary>
+        /// 根據資源 ID 更新 Google Wallet 為票券已過期(EXPIRED) 狀態。
+        /// </summary>
         /// <param name="resourceId">資源唯一識別碼（格式通常為 issuerId.objectId）。</param>
         /// <returns>返回更新狀態後的 FlightObject 資源物件。</returns>
-        public Task<FlightObject> ExpireObjectAsync(string resourceId);
+        public Task<FlightObject> ExpireFlightObjectByResourceIdAsync(string resourceId);
+
+        /// <summary>
+        /// 根據資源 ID 更新 Google Wallet 狀態為指定狀態。
+        /// </summary>
+        /// <param name="objectId">objectId</param>
+        /// <param name="objectState">指定要更新的票券狀態。</param>
+        /// <returns>返回更新狀態後的 FlightObject 資源物件。</returns>
+        public Task<FlightObject> UpdateFlightObjectStatusAsync(
+            string objectId,
+            string objectState
+        );
 
         /// <summary>
         /// 根據資源 ID 更新 Google Wallet 狀態為指定狀態。
@@ -133,7 +151,10 @@ namespace WalletLibrary.Services.Interfaces
         /// <param name="resourceId">資源唯一識別碼（格式通常為 issuerId.objectId）。</param>
         /// <param name="objectState">指定要更新的票券狀態。</param>
         /// <returns>返回更新狀態後的 FlightObject 資源物件。</returns>
-        public Task<FlightObject> UpdateObjectStatusAsync(string resourceId, string objectState);
+        public Task<FlightObject> UpdateFlightObjectStatusByResourceIdAsync(
+            string resourceId,
+            string objectState
+        );
         #endregion
     }
 }

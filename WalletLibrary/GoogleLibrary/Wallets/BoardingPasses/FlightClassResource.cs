@@ -10,9 +10,9 @@ namespace WalletLibrary.GoogleWallet.WalletTypes.Flight
     /// 提供對 Google Wallet 中 FlightClass 的操作，包括建立、取得、更新、部分更新以及新增訊息。
     /// 繼承自 BaseHandlerLogger，具備統一的日誌與例外處理機制。
     /// </summary>
-    public class FlightClassRepository
-        : BaseHandlerLogger<FlightClassRepository>,
-            IClassRepository<FlightClass>
+    public class FlightClassResource
+        : BaseHandlerLogger<FlightClassResource>,
+            IClassResource<FlightClass>
     {
         private readonly WalletobjectsService _walletobjectsService;
 
@@ -20,8 +20,8 @@ namespace WalletLibrary.GoogleWallet.WalletTypes.Flight
         /// 初始化 FlightClassHandler 實例。
         /// </summary>
         /// <param name="walletobjectsService">Google Wallet API 的服務實例，用於操作 FlightClass。</param>
-        public FlightClassRepository(
-            ILogger<FlightClassRepository> logger,
+        public FlightClassResource(
+            ILogger<FlightClassResource> logger,
             WalletobjectsService walletobjectsService
         )
             : base(logger)

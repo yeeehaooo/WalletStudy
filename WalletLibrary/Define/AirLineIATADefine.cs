@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace WalletLibrary.Define
+﻿namespace WalletLibrary.Define
 {
     /// <summary>
     /// IATA代碼定義
     /// </summary>
-    public static class IATADefine
+    public static class AirLineIATADefine
     {
         /// <summary>
         /// 中華航空 China Airlines

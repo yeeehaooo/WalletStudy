@@ -13,31 +13,18 @@ namespace GoogleWalletApi.Controllers
     public class GoogleWalletController : Controller
     {
         /// <summary>華航的 Google Wallet 服務。</summary>
-        private readonly IGooglePassService ChinaairLinesService;
+        private readonly IGoogleWalletService ChinaairLinesService;
 
         /// <summary>華航的 Google Wallet 處理器。</summary>
         private readonly IGoogleWalletHandler MandarinAirlinesHandler;
 
         public GoogleWalletController(
-            [FromKeyedServices(IATADefine.CI)] IGooglePassService chinaairLinesService,
-            [FromKeyedServices(IATADefine.AE)] IGoogleWalletHandler mandarinAirlinesHandler
+            [FromKeyedServices(AirLineIATADefine.CI)] IGoogleWalletService chinaairLinesService,
+            [FromKeyedServices(AirLineIATADefine.AE)] IGoogleWalletHandler mandarinAirlinesHandler
         )
         {
             ChinaairLinesService = chinaairLinesService;
             MandarinAirlinesHandler = mandarinAirlinesHandler;
-        }
-
-        [HttpPost("PatchOjbectIdtoClassId")]
-        public async Task<IActionResult> PatchOjbectIdtoClassId(string? classId, string? objectId)
-        {
-            FlightObject flightObject = new FlightObject();
-            flightObject.State = FlightObjectDefine.State.ACTIVE;
-            flightObject.Id =
-                $"3388000000022913608.P{System.DateTime.Now.Date.ToString("yyyyMMdd")}{(string.IsNullOrEmpty(objectId) ? "" : $"_{objectId}")}";
-            flightObject.ClassId =
-                $"3388000000022913608.C{System.DateTime.Now.Date.ToString("yyyyMMdd")}{(string.IsNullOrEmpty(classId) ? "" : $"_{classId}")}";
-
-            return Ok(await ChinaairLinesService.PatchObjectAsync(flightObject));
         }
 
         [HttpPost("CreateFlight")]
@@ -60,22 +47,35 @@ namespace GoogleWalletApi.Controllers
             return Ok(await ChinaairLinesService.CreatePassengerAsync(cId, oId));
         }
 
-        [HttpPost("GetJWT")]
-        public async Task<IActionResult> GetJWT(string? classId, string? objectId)
+        [HttpPost("BoardingPasses")]
+        public async Task<IActionResult> GetBoardingPassesJwtToken(
+            string? classId,
+            string? objectId
+        )
         {
             return Ok(
-                await ChinaairLinesService.GetJwtToken(
+                ChinaairLinesService.GetBoardingPassesJwtToken(
                     $"C{System.DateTime.Now.Date.ToString("yyyyMMdd")}{(string.IsNullOrEmpty(classId) ? "" : $"_{classId}")}",
                     $"P{System.DateTime.Now.Date.ToString("yyyyMMdd")}{(string.IsNullOrEmpty(objectId) ? "" : $"_{objectId}")}"
                 )
             );
         }
 
-        [HttpPost("GetJWTByObjectId")]
-        public async Task<IActionResult> GetJWTByObjectId(string? objectId)
+        [HttpPost("BoardingPassesByObjectId")]
+        public async Task<IActionResult> GetBoardingPassesJwtTokenByObjectId(string? objectId)
         {
             return Ok(
-                await ChinaairLinesService.GetJwtToken(
+                ChinaairLinesService.GetBoardingPassesJwtToken(
+                    $"P{System.DateTime.Now.Date.ToString("yyyyMMdd")}{(string.IsNullOrEmpty(objectId) ? "" : $"_{objectId}")}"
+                )
+            );
+        }
+
+        [HttpPost("BoardingPassesExpire")]
+        public async Task<IActionResult> BoardingPassesExpire(string? objectId)
+        {
+            return Ok(
+                await ChinaairLinesService.ExpireFlightObjectAsync(
                     $"P{System.DateTime.Now.Date.ToString("yyyyMMdd")}{(string.IsNullOrEmpty(objectId) ? "" : $"_{objectId}")}"
                 )
             );

@@ -7,7 +7,7 @@ namespace WalletLibrary.GoogleWallet.Base.Interfaces
     /// 包括取得、建立、更新、部分更新以及新增訊息等功能。
     /// 可應用於 Class 資源。
     /// </summary>
-    public interface IClassRepository<TClass>
+    public interface IClassResource<TClass>
     {
         /// <summary>
         /// 根據資源 ID 取得資源類別資訊。

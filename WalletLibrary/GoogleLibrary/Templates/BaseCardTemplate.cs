@@ -213,9 +213,9 @@ namespace WalletLibrary.GoogleLibrary.Templates
         {
             switch (companyCode)
             {
-                case IATADefine.CI:
+                case AirLineIATADefine.CI:
                     return CI_Template();
-                case IATADefine.AE:
+                case AirLineIATADefine.AE:
                     return CI_Template();
                 default:
                     return DefaultTemplate();
