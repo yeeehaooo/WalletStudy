@@ -3,7 +3,6 @@ using Google.Apis.Walletobjects.v1.Data;
 using Microsoft.Extensions.Logging;
 using WalletLibrary.Define;
 using WalletLibrary.GoogleWallet.Base.Interfaces;
-using WalletLibrary.GoogleWallet.WalletTypes.Flight.Interfaces;
 using WalletLibrary.Logger;
 
 namespace WalletLibrary.GoogleWallet.WalletTypes.Flight

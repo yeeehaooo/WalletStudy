@@ -1,7 +1,5 @@
 ﻿using Google.Apis.Walletobjects.v1.Data;
-using WalletLibrary.GoogleWallet.Context;
 using WalletLibrary.GoogleWallet.Settings;
-using WalletLibrary.GoogleWallet.WalletTypes.Flight.Interfaces;
 
 namespace WalletLibrary.GoogleWallet.Base.Interfaces
 {

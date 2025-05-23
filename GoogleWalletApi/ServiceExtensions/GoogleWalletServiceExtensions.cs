@@ -8,7 +8,6 @@ using WalletLibrary.GoogleWallet.Context;
 using WalletLibrary.GoogleWallet.Context.Interfaces;
 using WalletLibrary.GoogleWallet.Settings;
 using WalletLibrary.GoogleWallet.WalletTypes.Flight;
-using WalletLibrary.GoogleWallet.WalletTypes.Flight.Interfaces;
 using WalletLibrary.Services;
 using WalletLibrary.Services.Interfaces;
 
