@@ -1,6 +1,4 @@
-﻿using System.ComponentModel;
-
-namespace WalletLibrary.GoogleLibrary.Models.Languages
+﻿namespace WalletLibrary.GoogleLibrary.Models.Languages
 {
     /// <summary>
     /// 設定標題 & 內容 (含多語系)物件

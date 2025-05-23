@@ -1,6 +1,4 @@
-﻿using Google.Apis.Walletobjects.v1.Data;
-
-namespace WalletLibrary.GoogleLibrary.Models.Languages
+﻿namespace WalletLibrary.GoogleLibrary.Models.Languages
 {
     /// <summary>
     /// 設定語系 & 內容

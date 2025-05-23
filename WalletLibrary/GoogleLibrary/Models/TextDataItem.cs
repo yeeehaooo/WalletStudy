@@ -1,5 +1,4 @@
-﻿using Google.Apis.Walletobjects.v1.Data;
-using WalletLibrary.GoogleLibrary.Models.Languages;
+﻿using WalletLibrary.GoogleLibrary.Models.Languages;
 
 namespace WalletLibrary.GoogleLibrary.Models
 {
