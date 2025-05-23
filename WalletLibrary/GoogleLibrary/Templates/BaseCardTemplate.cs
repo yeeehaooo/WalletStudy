@@ -148,7 +148,7 @@ namespace WalletLibrary.GoogleLibrary.Templates
         );
         #endregion
 
-        public static TemplateItem ToCardRowItem(this FieldItem item, FieldItem? secondItem = null)
+        private static TemplateItem ToCardRowItem(this FieldItem item, FieldItem? secondItem = null)
         {
             if (item.IsPredefinedItem)
             {
@@ -171,7 +171,7 @@ namespace WalletLibrary.GoogleLibrary.Templates
             };
         }
 
-        public static BarcodeSectionDetail ToBarcodeSectionDetail(this FieldItem item)
+        private static BarcodeSectionDetail ToBarcodeSectionDetail(this FieldItem item)
         {
             return new BarcodeSectionDetail
             {
@@ -182,7 +182,7 @@ namespace WalletLibrary.GoogleLibrary.Templates
             };
         }
 
-        public static DetailsItemInfo ToDetailItem(
+        private static DetailsItemInfo ToDetailItem(
             this FieldItem item,
             FieldItem? secondItem = null
         )
@@ -190,7 +190,7 @@ namespace WalletLibrary.GoogleLibrary.Templates
             return new DetailsItemInfo { Item = item.ToCardRowItem(secondItem) };
         }
 
-        public static FieldReference ToFieldReference(this FieldItem item)
+        private static FieldReference ToFieldReference(this FieldItem item)
         {
             return new FieldReference { FieldPath = item.FieldPath, DateFormat = item.DateFormat };
         }

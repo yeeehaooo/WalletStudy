@@ -1,5 +1,5 @@
 ﻿using Google.Apis.Walletobjects.v1.Data;
-using WalletLibrary.GoogleWallet.WalletTypes.Flight.Models;
+using WalletLibrary.GoogleLibrary.Wallets.BoardingPasses.Models;
 
 namespace WalletLibrary.Services.Interfaces
 {

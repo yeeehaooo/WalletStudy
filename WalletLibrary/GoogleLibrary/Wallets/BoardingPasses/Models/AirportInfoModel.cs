@@ -1,6 +1,6 @@
 ﻿using WalletLibrary.GoogleWallet.Models.Languages;
 
-namespace WalletLibrary.GoogleWallet.WalletTypes.Flight.Models
+namespace WalletLibrary.GoogleLibrary.Wallets.BoardingPasses.Models
 {
     public class AirportInfoModel
     {

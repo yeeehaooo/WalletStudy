@@ -5,7 +5,7 @@ using WalletLibrary.GoogleLibrary.Defines;
 using WalletLibrary.GoogleWallet.Base.Interfaces;
 using WalletLibrary.Logger;
 
-namespace WalletLibrary.GoogleWallet.WalletTypes.Flight
+namespace WalletLibrary.GoogleLibrary.Wallets.BoardingPasses
 {
     /// <summary>
     /// 提供對 Google Wallet 中 FlightObject 的操作，包括建立、取得、更新、部分更新以及新增訊息。

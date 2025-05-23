@@ -2,12 +2,12 @@
 using Google.Apis.Services;
 using Google.Apis.Walletobjects.v1;
 using Google.Apis.Walletobjects.v1.Data;
+using WalletLibrary.GoogleLibrary.Wallets.BoardingPasses;
 using WalletLibrary.GoogleWallet.Base;
 using WalletLibrary.GoogleWallet.Base.Interfaces;
 using WalletLibrary.GoogleWallet.Context;
 using WalletLibrary.GoogleWallet.Context.Interfaces;
 using WalletLibrary.GoogleWallet.Settings;
-using WalletLibrary.GoogleWallet.WalletTypes.Flight;
 using WalletLibrary.Services;
 using WalletLibrary.Services.Interfaces;
 

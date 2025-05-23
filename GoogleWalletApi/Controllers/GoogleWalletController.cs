@@ -1,9 +1,6 @@
-﻿using System.Security.Cryptography;
-using Google.Apis.Walletobjects.v1.Data;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using WalletLibrary.Define;
 using WalletLibrary.GoogleWallet.Base.Interfaces;
-using WalletLibrary.GoogleWallet.WalletTypes.Flight.Models;
 using WalletLibrary.Services.Interfaces;
 
 namespace GoogleWalletApi.Controllers

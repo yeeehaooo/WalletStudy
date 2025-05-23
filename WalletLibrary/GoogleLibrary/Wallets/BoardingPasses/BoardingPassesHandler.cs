@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using WalletLibrary.GoogleWallet.Base.Interfaces;
 
-namespace WalletLibrary.GoogleWallet.WalletTypes.Flight
+namespace WalletLibrary.GoogleLibrary.Wallets.BoardingPasses
 {
     public class BoardingPassesHandler : IWalletHandler<FlightClass, FlightObject>
     {

@@ -1,4 +1,4 @@
-﻿namespace WalletLibrary.GoogleWallet.WalletTypes.Flight.Models
+﻿namespace WalletLibrary.GoogleLibrary.Wallets.BoardingPasses.Models
 {
     /// <summary>
     /// Boarding Pass Wallet 登機證錢包
