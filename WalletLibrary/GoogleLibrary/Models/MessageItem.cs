@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using WalletLibrary.GoogleWallet.Models.Languages;
+using WalletLibrary.GoogleLibrary.Models.Languages;
 
-namespace WalletLibrary.GoogleWallet.Models
+namespace WalletLibrary.GoogleLibrary.Models
 {
     public class MessageItem : LocalizedItem
     {

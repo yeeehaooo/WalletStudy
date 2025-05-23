@@ -1,7 +1,6 @@
-﻿using Google.Apis.Walletobjects.v1.Data;
-using WalletLibrary.GoogleWallet.Models.Languages;
+﻿using WalletLibrary.GoogleLibrary.Models.Languages;
 
-namespace WalletLibrary.GoogleWallet.Models.Images
+namespace WalletLibrary.GoogleLibrary.Models.Images
 {
     public class ImageItem
     {

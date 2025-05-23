@@ -1,9 +1,9 @@
 ﻿using Google.Apis.Auth.OAuth2;
 using Google.Apis.Walletobjects.v1;
-using WalletLibrary.GoogleWallet.Context.Interfaces;
-using WalletLibrary.GoogleWallet.Settings;
+using WalletLibrary.GoogleLibrary.Context.Interfaces;
+using WalletLibrary.GoogleLibrary.Settings;
 
-namespace WalletLibrary.GoogleWallet.Context
+namespace WalletLibrary.GoogleLibrary.Context
 {
     /// <summary>
     /// Google Wallet 設定上下文，包含發卡者資訊與金鑰檔案等設定。

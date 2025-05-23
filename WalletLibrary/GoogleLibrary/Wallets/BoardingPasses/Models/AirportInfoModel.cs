@@ -1,4 +1,4 @@
-﻿using WalletLibrary.GoogleWallet.Models.Languages;
+﻿using WalletLibrary.GoogleLibrary.Models.Languages;
 
 namespace WalletLibrary.GoogleLibrary.Wallets.BoardingPasses.Models
 {

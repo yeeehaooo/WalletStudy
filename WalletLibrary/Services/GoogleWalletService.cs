@@ -1,14 +1,14 @@
 ﻿using Google.Apis.Walletobjects.v1.Data;
 using Microsoft.Extensions.Logging;
 using WalletLibrary.Define;
+using WalletLibrary.GoogleLibrary.Base.Interfaces;
 using WalletLibrary.GoogleLibrary.Defines;
+using WalletLibrary.GoogleLibrary.Models;
+using WalletLibrary.GoogleLibrary.Models.Images;
+using WalletLibrary.GoogleLibrary.Models.Languages;
+using WalletLibrary.GoogleLibrary.Settings;
 using WalletLibrary.GoogleLibrary.Templates;
 using WalletLibrary.GoogleLibrary.Wallets.BoardingPasses.Models;
-using WalletLibrary.GoogleWallet.Base.Interfaces;
-using WalletLibrary.GoogleWallet.Models;
-using WalletLibrary.GoogleWallet.Models.Images;
-using WalletLibrary.GoogleWallet.Models.Languages;
-using WalletLibrary.GoogleWallet.Settings;
 using WalletLibrary.Services.Interfaces;
 using WalletLibrary.Utility;
 using static WalletLibrary.GoogleLibrary.Defines.GoogleDefine;
@@ -290,7 +290,6 @@ namespace WalletLibrary.Services
                     flightInfo.Operating.CarrierCode,
                     flightInfo.Operating.FlightNumber
                 ),
-
                 // 主承運航空公司資訊
                 Carrier = new FlightCarrier
                 {

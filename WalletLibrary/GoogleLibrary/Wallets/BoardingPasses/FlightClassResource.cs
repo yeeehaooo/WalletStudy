@@ -1,7 +1,7 @@
 ﻿using Google.Apis.Walletobjects.v1;
 using Google.Apis.Walletobjects.v1.Data;
 using Microsoft.Extensions.Logging;
-using WalletLibrary.GoogleWallet.Base.Interfaces;
+using WalletLibrary.GoogleLibrary.Base.Interfaces;
 using WalletLibrary.Logger;
 
 namespace WalletLibrary.GoogleLibrary.Wallets.BoardingPasses

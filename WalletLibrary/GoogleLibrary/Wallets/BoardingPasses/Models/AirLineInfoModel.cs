@@ -1,5 +1,5 @@
-﻿using WalletLibrary.GoogleWallet.Models.Images;
-using WalletLibrary.GoogleWallet.Models.Languages;
+﻿using WalletLibrary.GoogleLibrary.Models.Images;
+using WalletLibrary.GoogleLibrary.Models.Languages;
 
 namespace WalletLibrary.GoogleLibrary.Wallets.BoardingPasses.Models
 {

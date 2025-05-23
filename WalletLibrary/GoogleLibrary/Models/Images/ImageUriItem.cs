@@ -1,6 +1,6 @@
-﻿using WalletLibrary.GoogleWallet.Models.Languages;
+﻿using WalletLibrary.GoogleLibrary.Models.Languages;
 
-namespace WalletLibrary.GoogleWallet.Models.Images
+namespace WalletLibrary.GoogleLibrary.Models.Images
 {
     /// <param name="Uri"> Image Uri </param>
     /// <param name="Description"> Image Description </param>

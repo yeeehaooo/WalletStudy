@@ -1,4 +1,4 @@
-﻿namespace WalletLibrary.GoogleWallet.Settings
+﻿namespace WalletLibrary.GoogleLibrary.Settings
 {
     /// <summary>
     /// 包含所有公司對應的 Google Wallet 設定資訊集合，

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WalletLibrary.Define;
-using WalletLibrary.GoogleWallet.Base.Interfaces;
+using WalletLibrary.GoogleLibrary.Base.Interfaces;
 using WalletLibrary.Services.Interfaces;
 
 namespace GoogleWalletApi.Controllers

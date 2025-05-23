@@ -1,9 +1,9 @@
 ﻿using System.Globalization;
 using Google.Apis.Walletobjects.v1.Data;
 using Newtonsoft.Json;
-using WalletLibrary.GoogleWallet.Models;
-using WalletLibrary.GoogleWallet.Models.Images;
-using WalletLibrary.GoogleWallet.Models.Languages;
+using WalletLibrary.GoogleLibrary.Models;
+using WalletLibrary.GoogleLibrary.Models.Images;
+using WalletLibrary.GoogleLibrary.Models.Languages;
 using GoogleApiUri = Google.Apis.Walletobjects.v1.Data.Uri;
 using SystemUri = System.Uri;
 

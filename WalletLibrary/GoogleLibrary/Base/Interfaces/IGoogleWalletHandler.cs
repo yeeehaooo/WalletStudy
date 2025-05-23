@@ -1,7 +1,7 @@
 ﻿using Google.Apis.Walletobjects.v1.Data;
-using WalletLibrary.GoogleWallet.Settings;
+using WalletLibrary.GoogleLibrary.Settings;
 
-namespace WalletLibrary.GoogleWallet.Base.Interfaces
+namespace WalletLibrary.GoogleLibrary.Base.Interfaces
 {
     public interface IGoogleWalletHandler
     {

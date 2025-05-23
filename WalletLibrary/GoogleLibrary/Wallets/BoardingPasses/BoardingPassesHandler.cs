@@ -1,7 +1,7 @@
 ﻿using Google.Apis.Walletobjects.v1.Data;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using WalletLibrary.GoogleWallet.Base.Interfaces;
+using WalletLibrary.GoogleLibrary.Base.Interfaces;
 
 namespace WalletLibrary.GoogleLibrary.Wallets.BoardingPasses
 {

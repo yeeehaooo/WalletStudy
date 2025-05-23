@@ -1,6 +1,5 @@
 ﻿using System.Net;
 using Google;
-using Newtonsoft.Json;
 
 namespace GoogleWalletApi.Middleware
 {

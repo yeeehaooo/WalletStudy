@@ -1,6 +1,6 @@
 ﻿using Google.Apis.Walletobjects.v1.Data;
 
-namespace WalletLibrary.GoogleWallet.Base.Interfaces
+namespace WalletLibrary.GoogleLibrary.Base.Interfaces
 {
     /// <summary>
     /// 定義 Google Wallet 資源類別（Class）的標準操作介面，

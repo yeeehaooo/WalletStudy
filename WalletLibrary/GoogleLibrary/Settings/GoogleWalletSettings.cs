@@ -1,4 +1,4 @@
-﻿namespace WalletLibrary.GoogleWallet.Settings
+﻿namespace WalletLibrary.GoogleLibrary.Settings
 {
     /// <summary>
     /// Google Wallet 設定項目，包含發卡者資訊與金鑰檔案路徑等設定。

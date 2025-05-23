@@ -3,11 +3,11 @@ using Google.Apis.Walletobjects.v1.Data;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using WalletLibrary.GoogleWallet.Base.Interfaces;
-using WalletLibrary.GoogleWallet.Context.Interfaces;
-using WalletLibrary.GoogleWallet.Settings;
+using WalletLibrary.GoogleLibrary.Base.Interfaces;
+using WalletLibrary.GoogleLibrary.Context.Interfaces;
+using WalletLibrary.GoogleLibrary.Settings;
 
-namespace WalletLibrary.GoogleWallet.Base
+namespace WalletLibrary.GoogleLibrary.Base
 {
     public class GoogleWalletHandler : IGoogleWalletHandler
     {

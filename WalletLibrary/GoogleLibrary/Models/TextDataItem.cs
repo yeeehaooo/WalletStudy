@@ -1,7 +1,7 @@
 ﻿using Google.Apis.Walletobjects.v1.Data;
-using WalletLibrary.GoogleWallet.Models.Languages;
+using WalletLibrary.GoogleLibrary.Models.Languages;
 
-namespace WalletLibrary.GoogleWallet.Models
+namespace WalletLibrary.GoogleLibrary.Models
 {
     public class TextDataItem : LocalizedItem
     {

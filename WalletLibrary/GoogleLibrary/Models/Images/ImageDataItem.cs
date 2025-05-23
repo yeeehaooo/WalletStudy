@@ -1,4 +1,4 @@
-﻿namespace WalletLibrary.GoogleWallet.Models.Images
+﻿namespace WalletLibrary.GoogleLibrary.Models.Images
 {
     public class ImageDataItem
     {
