@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using Google.Apis.Walletobjects.v1.Data;
 using WalletLibrary.Define;
+using WalletLibrary.GoogleLibrary.Defines;
 
 namespace WalletLibrary.GoogleLibrary.Templates
 {
@@ -13,7 +14,7 @@ namespace WalletLibrary.GoogleLibrary.Templates
 
         public static readonly FieldItem FlightNumber = new FieldItem(
             "FlightNumber",
-            "flightNumberAndOperatingFlightNumber",
+            GoogleDefine.PredefinedItem.FLIGHT_NUMBER_AND_OPERATING_FLIGHT_NUMBER.ToString(),
             null,
             true
         );
@@ -21,7 +22,7 @@ namespace WalletLibrary.GoogleLibrary.Templates
         public static readonly FieldItem DepartureDateTime = new FieldItem(
             "LocalScheduledDepartureDateTime",
             "class.localScheduledDepartureDateTime",
-            "TIME_ONLY"
+            GoogleDefine.DateFormat.TIME_ONLY.ToString()
         );
 
         public static readonly FieldItem OriginTerminal = new FieldItem(
@@ -32,7 +33,7 @@ namespace WalletLibrary.GoogleLibrary.Templates
         public static readonly FieldItem ArrivalDateTime = new FieldItem(
             "LocalScheduledArrivalDateTime",
             "class.localScheduledArrivalDateTime",
-            "TIME_ONLY"
+            GoogleDefine.DateFormat.TIME_ONLY.ToString()
         );
 
         public static readonly FieldItem DestinationTerminal = new FieldItem(
@@ -43,7 +44,7 @@ namespace WalletLibrary.GoogleLibrary.Templates
         public static readonly FieldItem BoardingDateTime = new FieldItem(
             "LocalBoardingDateTime",
             "class.localBoardingDateTime",
-            "DATE_TIME"
+            GoogleDefine.DateFormat.DATE_TIME.ToString()
         );
 
         public static readonly FieldItem OriginGate = new FieldItem(
@@ -88,12 +89,12 @@ namespace WalletLibrary.GoogleLibrary.Templates
         public static readonly FieldItem FlightDate = new FieldItem(
             "LocalScheduledDepartureDateTime",
             "class.localScheduledDepartureDateTime",
-            "YEAR_MONTH_DAY"
+            GoogleDefine.DateFormat.YEAR_MONTH_DAY.ToString()
         );
 
         public static readonly FieldItem FlyerProgram = new FieldItem(
             "FlyerProgram",
-            "frequentFlyerProgramNameAndNumber",
+            GoogleDefine.PredefinedItem.FREQUENT_FLYER_PROGRAM_NAME_AND_NUMBER.ToString(),
             null,
             true // IsPredefinedItem
         );

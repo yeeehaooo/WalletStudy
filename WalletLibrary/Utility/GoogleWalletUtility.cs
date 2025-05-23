@@ -7,7 +7,7 @@ using WalletLibrary.GoogleWallet.Models.Languages;
 using GoogleApiUri = Google.Apis.Walletobjects.v1.Data.Uri;
 using SystemUri = System.Uri;
 
-namespace WalletLibrary.DTO
+namespace WalletLibrary.Utility
 {
     public static partial class GoogleWalletUtility
     {

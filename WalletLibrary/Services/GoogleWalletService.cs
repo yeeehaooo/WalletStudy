@@ -1,7 +1,6 @@
 ﻿using Google.Apis.Walletobjects.v1.Data;
 using Microsoft.Extensions.Logging;
 using WalletLibrary.Define;
-using WalletLibrary.DTO;
 using WalletLibrary.GoogleLibrary.Defines;
 using WalletLibrary.GoogleLibrary.Templates;
 using WalletLibrary.GoogleWallet.Base.Interfaces;
@@ -11,7 +10,8 @@ using WalletLibrary.GoogleWallet.Models.Languages;
 using WalletLibrary.GoogleWallet.Settings;
 using WalletLibrary.GoogleWallet.WalletTypes.Flight.Models;
 using WalletLibrary.Services.Interfaces;
-using static WalletLibrary.GoogleLibrary.Defines.FlightClassDefine;
+using WalletLibrary.Utility;
+using static WalletLibrary.GoogleLibrary.Defines.GoogleDefine;
 using GoogleApiUri = Google.Apis.Walletobjects.v1.Data.Uri;
 
 namespace WalletLibrary.Services
@@ -232,7 +232,7 @@ namespace WalletLibrary.Services
 
             // 1. Note: ReviewStatus must be 'UNDER_REVIEW' or 'DRAFT'
             // 審核狀態（預設為 "UNDER_REVIEW"，若已申請 正式版 production 可改為 "APPROVED"）
-            flightClass.ReviewStatus = ReviewStatus.UNDER_REVIEW;
+            flightClass.ReviewStatus = ReviewStatus.UNDER_REVIEW.ToString();
 
             // 2. 背景底色
             flightClass.HexBackgroundColor = _settings.HexBackgroundColor;
@@ -371,7 +371,7 @@ namespace WalletLibrary.Services
                 // 1. Class ID 與 Object ID
                 Id = objectId,
                 ClassId = $"{_settings.IssuerId}.{passengerInfo.ClassSuffix}",
-                State = FlightObjectDefine.State.ACTIVE, // ACTIVE, INACTIVE, EXPIRED, etc.
+                State = GoogleDefine.State.ACTIVE.ToString(), // ACTIVE, INACTIVE, EXPIRED, etc.
                 // 2. 姓名
                 PassengerName = passengerInfo.PassengerName,
                 // 3. 座位資訊（座位號碼、艙等）
@@ -541,13 +541,13 @@ namespace WalletLibrary.Services
 
         public async Task<FlightClass> UpdateFlightClassAsync(FlightClass flightClass)
         {
-            flightClass.ReviewStatus = ReviewStatus.UNDER_REVIEW;
+            flightClass.ReviewStatus = ReviewStatus.UNDER_REVIEW.ToString();
             return await _googleWalletHandler.FlightWallet.ClassResource.UpdateAsync(flightClass);
         }
 
         public async Task<FlightClass> PatchFlightClassAsync(FlightClass flightClass)
         {
-            flightClass.ReviewStatus = ReviewStatus.UNDER_REVIEW;
+            flightClass.ReviewStatus = ReviewStatus.UNDER_REVIEW.ToString();
             return await _googleWalletHandler.FlightWallet.ClassResource.PatchAsync(flightClass);
         }
 

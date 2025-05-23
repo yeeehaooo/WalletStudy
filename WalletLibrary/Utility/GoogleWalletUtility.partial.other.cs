@@ -1,7 +1,7 @@
 ﻿using System.Runtime.Serialization;
 using Google.Apis.Util;
 
-namespace WalletLibrary.DTO
+namespace WalletLibrary.Utility
 {
     public static partial class GoogleWalletUtility
     {

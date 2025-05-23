@@ -273,7 +273,7 @@ namespace WalletLibrary.GoogleWallet.WalletTypes.Flight
                 // Patch the object, setting the pass as expired
                 FlightObject patchBody = new FlightObject
                 {
-                    State = FlightObjectDefine.State.EXPIRED,
+                    State = GoogleDefine.State.EXPIRED.ToString(),
                 };
                 var request = _walletobjectsService.Flightobject.Patch(patchBody, resourceId);
                 var response = await request.ExecuteAsync();
