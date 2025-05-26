@@ -76,9 +76,15 @@ namespace WalletLibrary.GoogleLibrary.Templates
             "AirportCheckinInfo",
             "class.linksModuleData.uris['AirportCheckinInfo']"
         );
+
         public static readonly FieldItem ReminderMessage = new FieldItem(
             "ReminderMessage",
             "class.textModulesData['ReminderMessage']"
+        );
+
+        public static readonly FieldItem OperatingCarrierName = new FieldItem(
+            "OperatingCarrierName",
+            "class.textModulesData['OperatingCarrierName']"
         );
 
         public static readonly FieldItem BaggageInfo = new FieldItem(
@@ -265,6 +271,7 @@ namespace WalletLibrary.GoogleLibrary.Templates
                     FlightDate.ToDetailItem(),
                     SeatClass.ToDetailItem(),
                     BookingClass.ToDetailItem(),
+                    OperatingCarrierName.ToDetailItem(),
                     CodeShare.ToDetailItem(),
                     BaggagesValues.ToDetailItem(),
                     SpecialMealCode.ToDetailItem(),

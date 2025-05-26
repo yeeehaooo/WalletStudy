@@ -78,7 +78,10 @@ namespace WalletLibrary.Services
             );
             operating.AirLineName = new LocalizedStringItem(
                 // 預設語系
-                defaultValue: new TranslatedStringItem("en-US", "China Airlines"),
+                defaultValue: new TranslatedStringItem(
+                    LanguageTag.en_US.GetEnumMember(),
+                    "China Airlines"
+                ),
                 // 其他語系
                 translatedValues: null
             );
@@ -100,11 +103,14 @@ namespace WalletLibrary.Services
             departure.Gate = "A1"; // 登機門號碼
             departure.NameOverride = new LocalizedStringItem(
                 // 預設語系
-                defaultValue: new TranslatedStringItem("en-US", "Taipei Airport"),
+                defaultValue: new TranslatedStringItem(
+                    LanguageTag.en_US.GetEnumMember(),
+                    "Taipei Airport"
+                ),
                 // 其他語系
                 translatedValues: new List<TranslatedStringItem>
                 {
-                    new TranslatedStringItem("zh-TW", "桃園機場"),
+                    new TranslatedStringItem(LanguageTag.zh_TW.GetEnumMember(), "桃園機場"),
                 }
             );
             flight.DepartureAirport = departure;
@@ -115,11 +121,14 @@ namespace WalletLibrary.Services
             arrival.Gate = "B01"; // 登機門號碼
             arrival.NameOverride = new LocalizedStringItem(
                 // 預設語系
-                defaultValue: new TranslatedStringItem("en-US", "Narita Airport"),
+                defaultValue: new TranslatedStringItem(
+                    LanguageTag.en_US.GetEnumMember(),
+                    "Narita Airport"
+                ),
                 // 其他語系
                 translatedValues: new List<TranslatedStringItem>
                 {
-                    new TranslatedStringItem("zh-TW", "成田機場"),
+                    new TranslatedStringItem(LanguageTag.zh_TW.GetEnumMember(), "成田機場"),
                 }
             );
             flight.ArrivalAirport = arrival;
@@ -133,7 +142,7 @@ namespace WalletLibrary.Services
                 description: "BaggageMessageInfo"
             );
             flight.OperatingCarrierName = new TextDataItem(
-                header: "Operating Carrier Name",
+                header: "Operating Carrier",
                 body: "Operated by China Airlines LTD."
             );
             flight.ReminderMessage = new TextDataItem(
@@ -172,9 +181,15 @@ namespace WalletLibrary.Services
                 ),
                 AirLineName = new LocalizedStringItem(
                     // 預設語系
-                    defaultValue: new TranslatedStringItem("en-US", "Japan Airlines"),
+                    defaultValue: new TranslatedStringItem(
+                        LanguageTag.en_US.GetEnumMember(),
+                        "Japan Airlines"
+                    ),
                     // 其他語系
-                    translatedValues: new List<TranslatedStringItem> { new("zh-TW", "日本航空") }
+                    translatedValues: new List<TranslatedStringItem>
+                    {
+                        new(LanguageTag.zh_TW.GetEnumMember(), "日本航空"),
+                    }
                 ),
             };
             passenger.PassengerName = "WANG HSIAOMING";
@@ -317,6 +332,9 @@ namespace WalletLibrary.Services
             flightClass.TextModulesData = new List<TextModuleData>
             {
                 flightInfo.ReminderMessage.ToTextModule(BaseCardTemplate.ReminderMessage.FieldName),
+                flightInfo.OperatingCarrierName.ToTextModule(
+                    BaseCardTemplate.OperatingCarrierName.FieldName
+                ),
             };
 
             // 11. 連結模組, 可以設定多組連結, 非必填

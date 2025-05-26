@@ -365,3 +365,4 @@ FodyWeavers.xsd
 
 # 
 *service-account.json
+.vscode/
