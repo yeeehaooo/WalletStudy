@@ -22,10 +22,11 @@ namespace WalletLibrary.GoogleLibrary.Base.Interfaces
         string GetJwtToken(string classId, string objectId, string type);
 
         /// <summary>
-        /// 生成 "Add to Google Wallet" 的連結 By Object Resource ID。
+        /// 生成 "Add to Google Wallet" 的連結 By FlightObject ID。<br/>
+        /// 建議排程預先建立 Flight Class & Flight Object<br/>
         /// </summary>
-        /// <param name="objectResourceId">Object ResourceId。</param>
-        /// <returns>返回 "Add to Google Wallet" 的連結。</returns>
+        /// <param name="objectResourceId">航班對象的 ID。</param>
+        /// <returns>返回一個 "Add to Google Wallet" 的鏈接。</returns>
         string GetJwtToken(string objectResourceId, string type);
     }
 }

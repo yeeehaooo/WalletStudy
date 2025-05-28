@@ -25,12 +25,21 @@ namespace GoogleWalletApi.Controllers
         }
 
         [HttpPost("CreateFlight")]
-        public async Task<IActionResult> CreateFlight(string? classId, string? objectId)
+        public async Task<IActionResult> CreateFlight(string? classId)
         {
             var cId =
                 $"C{System.DateTime.Now.Date.ToString("yyyyMMdd")}{(string.IsNullOrEmpty(classId) ? "" : $"_{classId}")}";
 
             return Ok(await ChinaairLinesService.CreateFlightAsync(cId));
+        }
+
+        [HttpPost("PatchFlight")]
+        public async Task<IActionResult> PatchFlight(string? classId)
+        {
+            var cId =
+                $"C{System.DateTime.Now.Date.ToString("yyyyMMdd")}{(string.IsNullOrEmpty(classId) ? "" : $"_{classId}")}";
+
+            return Ok(await ChinaairLinesService.PatchFlightAsync(cId));
         }
 
         [HttpPost("CreatePassenger")]

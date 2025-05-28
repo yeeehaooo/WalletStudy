@@ -32,7 +32,7 @@ namespace WalletLibrary.GoogleLibrary.Wallets.BoardingPasses.Models
         ///// <summary>
         ///// 航空公司 Wide Logo Uri & Description
         ///// </summary>
-        //public ImageModel WideAirlineLogo { get; set; }
+        //public ImageUriItem? WideAirlineLogo { get; set; }
 
         ///// <summary>
         ///// 航空聯盟 AllianceLogo Uri & Description

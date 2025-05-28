@@ -107,7 +107,8 @@ namespace WalletLibrary.GoogleLibrary.Base
         }
 
         /// <summary>
-        /// 生成 "Add to Google Wallet" 的連結 By FlightObject ID。
+        /// 生成 "Add to Google Wallet" 的連結 By FlightObject ID。<br/>
+        /// 建議排程預先建立 Flight Class & Flight Object<br/>
         /// </summary>
         /// <param name="objectResourceId">航班對象的 ID。</param>
         /// <returns>返回一個 "Add to Google Wallet" 的鏈接。</returns>

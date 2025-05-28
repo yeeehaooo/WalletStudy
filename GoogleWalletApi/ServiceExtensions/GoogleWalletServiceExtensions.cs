@@ -91,6 +91,7 @@ namespace GoogleWalletApi.ServiceCollectionExtensions
                     companyCode,
                     (provider, key) =>
                         new GoogleWalletService(
+                            companyCode,
                             provider.GetRequiredService<ILogger<GoogleWalletService>>(),
                             provider.GetRequiredKeyedService<IGoogleWalletHandler>(key)
                         )

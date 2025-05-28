@@ -9,21 +9,8 @@ namespace WalletLibrary.Services.Interfaces
         public string GetBoardingPassesJwtToken(string objectId);
 
         public Task<string> CreateFlightAsync(string classId);
+        public Task<string> PatchFlightAsync(string classId);
         public Task<string> CreatePassengerAsync(string classId, string objectId);
-
-        /// <summary>
-        /// 新增 FlightClass 資源物件。
-        /// </summary>
-        /// <param name="flightInfo">要新增的航班資訊。</param>
-        /// <returns>返回新增的 FlightClass 資源物件。</returns>
-        public Task<FlightClass> InsertFlightInfoAsync(FlightInfo flightInfo);
-
-        /// <summary>
-        /// 新增 FlightClass 資源物件。
-        /// </summary>
-        /// <param name="passengerInfo">要新增的航班旅客資訊。</param>
-        /// <returns>返回新增的 FlightClass 資源物件。</returns>
-        public Task<FlightObject> InsertPassengerInfoAsync(PassengerInfo passengerInfo);
 
         #region 操作 Class Resource
         /// <summary>

@@ -324,24 +324,7 @@ namespace WalletLibrary.GoogleLibrary.Templates
                     },
                 },
             };
-            classTemplateInfo.DetailsTemplateOverride = new DetailsTemplateOverride
-            {
-                DetailsItemInfos = new List<DetailsItemInfo>
-                {
-                    AirportCheckinInfo.ToDetailItem(),
-                    BaggageInfo.ToDetailItem(),
-                    FlyerProgram.ToDetailItem(),
-                    ETicketNumber.ToDetailItem(),
-                    ConfirmationCode.ToDetailItem(),
-                    FlightDate.ToDetailItem(),
-                    SeatClass.ToDetailItem(),
-                    BookingClass.ToDetailItem(),
-                    CodeShare.ToDetailItem(),
-                    BaggagesValues.ToDetailItem(),
-                    SpecialMealCode.ToDetailItem(),
-                    ReminderMessage.ToDetailItem(),
-                },
-            };
+            classTemplateInfo.DetailsTemplateOverride = new DetailsTemplateOverride { };
 
             classTemplateInfo.CardBarcodeSectionDetails = new CardBarcodeSectionDetails
             {

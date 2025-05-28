@@ -18,6 +18,8 @@ namespace WalletLibrary.Services
 {
     public partial class GoogleWalletService : IGoogleWalletService
     {
+        private readonly string _companyIATACode;
+
         private readonly ILogger<GoogleWalletService> _logger;
 
         private readonly IGoogleWalletHandler _googleWalletHandler;
@@ -29,10 +31,12 @@ namespace WalletLibrary.Services
         private GoogleWalletSettings _settings;
 
         public GoogleWalletService(
+            string companyIATACode,
             ILogger<GoogleWalletService> logger,
             IGoogleWalletHandler googleWalletHandler
         )
         {
+            _companyIATACode = companyIATACode;
             _logger = logger;
             _googleWalletHandler = googleWalletHandler;
             _settings = googleWalletHandler.WalletSettings;
@@ -41,13 +45,19 @@ namespace WalletLibrary.Services
         }
 
         #region Google Wallet 登機證
-        public async Task<FlightClass> InsertFlightInfoAsync(FlightInfo flightInfo)
+        private async Task<FlightClass> InsertFlightInfoAsync(FlightInfo flightInfo)
         {
             var flightClass = BuildFlightClass(flightInfo);
             return await InsertFlightClassAsync(flightClass);
         }
 
-        public async Task<FlightObject> InsertPassengerInfoAsync(PassengerInfo passengerInfo)
+        private async Task<FlightClass> PatchFlightInfoAsync(FlightInfo flightInfo)
+        {
+            var flightClass = BuildFlightClass(flightInfo);
+            return await PatchFlightClassAsync(flightClass);
+        }
+
+        private async Task<FlightObject> InsertPassengerInfoAsync(PassengerInfo passengerInfo)
         {
             var flightObject = BuildFlightObject(passengerInfo);
             return await InsertFlightObjectAsync(flightObject);
@@ -59,7 +69,6 @@ namespace WalletLibrary.Services
         /// 呼叫 BuildFlightClass轉換,上傳Google Api<br/>
         /// </summary>
         /// <param name="classId"></param>
-        /// <param name="objectId"></param>
         public async Task<string> CreateFlightAsync(string classId)
         {
             FlightInfo flight = new FlightInfo();
@@ -70,7 +79,7 @@ namespace WalletLibrary.Services
             operating.FlightNumber = "9527";
             operating.AirlineLogo = new ImageUriItem(
                 // 圖片鏈結
-                uri: "https://airhex.com/images/airline-logos/alt/china-airlines.png",
+                uri: "https://images.unsplash.com/photo-1610642372651-fe6e7bc209ef?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=200",
                 // 圖片描述
                 description: "Airline Logo",
                 // 多語系圖片描述
@@ -151,6 +160,114 @@ namespace WalletLibrary.Services
             );
 
             var flightClass = await InsertFlightInfoAsync(flight);
+            return flightClass.Id;
+        }
+
+        /// <summary>
+        /// 更新範本<br/>
+        /// 根據航班唯一值,取得相關資訊<br/>
+        /// 呼叫 BuildFlightClass轉換,上傳Google Api<br/>
+        /// </summary>
+        /// <param name="classId"></param>
+        public async Task<string> PatchFlightAsync(string classId)
+        {
+            FlightInfo flight = new FlightInfo();
+            flight.ClassSuffix = classId;
+            // 航班資訊
+            var operating = new AirLineInfoModel();
+            operating.CarrierCode = "CI";
+            operating.FlightNumber = "9527";
+            operating.AirlineLogo = new ImageUriItem(
+                // 圖片鏈結
+                uri: "https://images.unsplash.com/photo-1610642372651-fe6e7bc209ef?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=800",
+                // 圖片描述
+                description: "Airline Logo",
+                // 多語系圖片描述
+                localizedDescription: null
+            );
+            //operating.WideAirlineLogo = new ImageUriItem(
+            //    // 圖片鏈結
+            //    uri: "https://images.unsplash.com/photo-1610642372651-fe6e7bc209ef?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1600&h=500",
+            //    // 圖片描述
+            //    description: "Wide Airline Logo",
+            //    // 多語系圖片描述
+            //    localizedDescription: null
+            //);
+            operating.AirLineName = new LocalizedStringItem(
+                // 預設語系
+                defaultValue: new TranslatedStringItem(
+                    LanguageTag.en_US.GetEnumMember(),
+                    "China Airlines"
+                ),
+                // 其他語系
+                translatedValues: null
+            );
+            flight.Operating = operating;
+
+            // 時刻資訊
+            flight.DepartureDate = "2025/01/01";
+            flight.DepartureTime = "08:30";
+            flight.ArrivalDate = "2025/01/01";
+            flight.ArrivalTime = "12:30";
+            flight.BoardingDate = "2025/01/01";
+            flight.LatestBoardingTime = "08:00";
+
+            // 出發機場資訊
+            var departure = new AirportInfoModel();
+            departure.CityName = "Taipei";
+            departure.IATA = "TPE"; // 出發地機場的 IATA 三碼代碼
+            departure.Terminal = "6";
+            departure.Gate = "A1"; // 登機門號碼
+            departure.NameOverride = new LocalizedStringItem(
+                // 預設語系
+                defaultValue: new TranslatedStringItem(
+                    LanguageTag.en_US.GetEnumMember(),
+                    "Taipei Airport"
+                ),
+                // 其他語系
+                translatedValues: new List<TranslatedStringItem>
+                {
+                    new TranslatedStringItem(LanguageTag.zh_TW.GetEnumMember(), "桃園機場"),
+                }
+            );
+            flight.DepartureAirport = departure;
+            var arrival = new AirportInfoModel();
+            arrival.CityName = "Tokyo";
+            arrival.IATA = "NRT"; // 抵達地機場的 IATA 三碼代碼
+            arrival.Terminal = "2";
+            arrival.Gate = "B01"; // 登機門號碼
+            arrival.NameOverride = new LocalizedStringItem(
+                // 預設語系
+                defaultValue: new TranslatedStringItem(
+                    LanguageTag.en_US.GetEnumMember(),
+                    "Narita Airport"
+                ),
+                // 其他語系
+                translatedValues: new List<TranslatedStringItem>
+                {
+                    new TranslatedStringItem(LanguageTag.zh_TW.GetEnumMember(), "成田機場"),
+                }
+            );
+            flight.ArrivalAirport = arrival;
+
+            flight.AirportCheckinInfo = new UriItem(
+                uri: "http://AirportCheckinInfo.com",
+                description: "AirportCheckinInfo"
+            );
+            flight.BaggageMessageInfo = new UriItem(
+                uri: "http://BaggageMessageInfo.com",
+                description: "BaggageMessageInfo"
+            );
+            flight.OperatingCarrierName = new TextDataItem(
+                header: "Operating Carrier",
+                body: "Operated by China Airlines LTD."
+            );
+            flight.ReminderMessage = new TextDataItem(
+                header: "Reminder Message",
+                body: "Please arrive at the airport 2 hours before departure."
+            );
+
+            var flightClass = await PatchFlightInfoAsync(flight);
             return flightClass.Id;
         }
 
@@ -319,11 +436,13 @@ namespace WalletLibrary.Services
                         "OperatingAirlineLogo"
                     ),
                     //// 航空公司 寬版Logo
-                    //WideAirlineLogo =
-                    //    boardingPassWallet.Flight.Operating.WideAirlineLogo?.ToImageModule(),
+                    //WideAirlineLogo = flightInfo.Operating.WideAirlineLogo?.ToImageModule(
+                    //    "OperatingWideAirlineLogo"
+                    //),
                     //// 航空聯盟 Logo
-                    //AirlineAllianceLogo =
-                    //    boardingPassWallet.Flight.Operating.AirlineAllianceLogo?.ToImageModule(),
+                    //AirlineAllianceLogo = flightInfo.Operating.WideAirlineLogo?.ToImageModule(
+                    //    "OperatingAirlineAllianceLogo"
+                    //),
                 },
             };
 
@@ -360,7 +479,7 @@ namespace WalletLibrary.Services
             flightClass.Messages = new List<Message> { };
 
             // 預設範本(有override 會清空預設排版)
-            flightClass.ClassTemplateInfo = BaseCardTemplate.GetCardTemplate(AirLineIATADefine.CI);
+            flightClass.ClassTemplateInfo = BaseCardTemplate.GetCardTemplate(_companyIATACode);
 
             return flightClass;
         }
